@@ -98,353 +98,554 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <SupportChatbot />
+          {/* <SupportChatbot /> */}
           <Routes>
             {/* جملول - صفحة الدخول الرئيسية */}
             <Route path="/" element={<Login />} />
             <Route path="/جملول" element={<Login />} />
-            
+
             {/* صفحات المستخدم */}
-            <Route path="/profile" element={
-              <Layout>
-                <UserProfile />
-              </Layout>
-            } />
-            <Route path="/user-settings" element={
-              <Layout>
-                <UserSettings />
-              </Layout>
-            } />
-            
+            <Route
+              path="/profile"
+              element={
+                <Layout>
+                  <UserProfile />
+                </Layout>
+              }
+            />
+            <Route
+              path="/user-settings"
+              element={
+                <Layout>
+                  <UserSettings />
+                </Layout>
+              }
+            />
+
             {/* الصفحات الداخلية بعد تسجيل الدخول */}
-            <Route path="/dashboard" element={
-              <Layout>
-                <TransportDashboard />
-              </Layout>
-            } />
-            <Route path="/settings/company" element={
-              <Layout>
-                <CompanySettings />
-              </Layout>
-            } />
-            <Route path="/settings/branches" element={
-              <Layout>
-                <BranchSettings />
-              </Layout>
-            } />
-            <Route path="/settings/users" element={
-              <Layout>
-                <UsersSettings />
-              </Layout>
-            } />
-            <Route path="/settings/roles" element={
-              <Layout>
-                <RolesPermissions />
-              </Layout>
-            } />
-            <Route path="/settings/themes" element={
-              <Layout>
-                <ThemeSettings />
-              </Layout>
-            } />
-            <Route path="/settings/system" element={
-              <Layout>
-                <SystemSettings />
-              </Layout>
-            } />
-            <Route path="/settings/advanced" element={
-              <Layout>
-                <AdvancedSettings />
-              </Layout>
-            } />
-            <Route path="/settings/security" element={
-              <Layout>
-                <AdvancedSettings />
-              </Layout>
-            } />
-            <Route path="/inventory" element={
-              <Layout>
-                <InventoryDashboard />
-              </Layout>
-            } />
-            <Route path="/inventory/dashboard" element={
-              <Layout>
-                <InventoryDashboard />
-              </Layout>
-            } />
-            <Route path="/warehouses" element={
-              <Layout>
-                <Warehouses />
-              </Layout>
-            } />
-            <Route path="/items" element={
-              <Layout>
-                <Items />
-              </Layout>
-            } />
-            <Route path="/suppliers" element={
-              <Layout>
-                <Suppliers />
-              </Layout>
-            } />
-            <Route path="/suppliers/add" element={
-              <Layout>
-                <AddSupplier />
-              </Layout>
-            } />
-            <Route path="/suppliers/approval" element={
-              <Layout>
-                <SupplierApproval />
-              </Layout>
-            } />
-            <Route path="/suppliers/products" element={
-              <Layout>
-                <SupplierProducts />
-              </Layout>
-            } />
-            <Route path="/suppliers/settings" element={
-              <Layout>
-                <Suppliers />
-              </Layout>
-            } />
-            <Route path="/suppliers/management" element={
-              <Layout>
-                <Suppliers />
-              </Layout>
-            } />
-            <Route path="/suppliers/contracts" element={
-              <Layout>
-                <Suppliers />
-              </Layout>
-            } />
-            <Route path="/suppliers/payments" element={
-              <Layout>
-                <Suppliers />
-              </Layout>
-            } />
-            <Route path="/suppliers/evaluation" element={
-              <Layout>
-                <Suppliers />
-              </Layout>
-            } />
-            <Route path="/suppliers/reports" element={
-              <Layout>
-                <Suppliers />
-              </Layout>
-            } />
-            <Route path="/purchase-orders" element={
-              <Layout>
-                <PurchaseOrders />
-              </Layout>
-            } />
-            <Route path="/goods-receipt" element={
-              <Layout>
-                <GoodsReceipt />
-              </Layout>
-            } />
-            <Route path="/invoice-processing" element={
-              <Layout>
-                <InvoiceProcessing />
-              </Layout>
-            } />
-            <Route path="/purchase-returns" element={
-              <Layout>
-                <PurchaseReturns />
-              </Layout>
-            } />
-            <Route path="/debit-note" element={
-              <Layout>
-                <DebitNote />
-              </Layout>
-            } />
-            <Route path="/inventory-transactions" element={
-              <Layout>
-                <InventoryTransactions />
-              </Layout>
-            } />
-            <Route path="/inventory/opening-stock" element={
-              <Layout>
-                <OpeningStock />
-              </Layout>
-            } />
-            <Route path="/procurement/settings" element={
-              <Layout>
-                <ProcurementSettings />
-              </Layout>
-            } />
-            <Route path="/procurement/requisition" element={
-              <Layout>
-                <PurchaseRequisition />
-              </Layout>
-            } />
-            <Route path="/procurement/rfq" element={
-              <Layout>
-                <RequestForQuotation />
-              </Layout>
-            } />
-            <Route path="/procurement/approval" element={
-              <Layout>
-                <ApprovalWorkflow />
-              </Layout>
-            } />
-            <Route path="/inventory/movement-log" element={
-              <Layout>
-                <InventoryMovementLog />
-              </Layout>
-            } />
-            <Route path="/inventory/stocktaking" element={
-              <Layout>
-                <StockTaking />
-              </Layout>
-            } />
-            <Route path="/inventory/policies" element={
-              <Layout>
-                <InventoryPolicies />
-              </Layout>
-            } />
-            <Route path="/inventory/analytics" element={
-              <Layout>
-                <InventoryAnalytics />
-              </Layout>
-            } />
-            
+            <Route
+              path="/dashboard"
+              element={
+                <Layout>
+                  <TransportDashboard />
+                </Layout>
+              }
+            />
+            <Route
+              path="/settings/company"
+              element={
+                <Layout>
+                  <CompanySettings />
+                </Layout>
+              }
+            />
+            <Route
+              path="/settings/branches"
+              element={
+                <Layout>
+                  <BranchSettings />
+                </Layout>
+              }
+            />
+            <Route
+              path="/settings/users"
+              element={
+                <Layout>
+                  <UsersSettings />
+                </Layout>
+              }
+            />
+            <Route
+              path="/settings/roles"
+              element={
+                <Layout>
+                  <RolesPermissions />
+                </Layout>
+              }
+            />
+            <Route
+              path="/settings/themes"
+              element={
+                <Layout>
+                  <ThemeSettings />
+                </Layout>
+              }
+            />
+            <Route
+              path="/settings/system"
+              element={
+                <Layout>
+                  <SystemSettings />
+                </Layout>
+              }
+            />
+            <Route
+              path="/settings/advanced"
+              element={
+                <Layout>
+                  <AdvancedSettings />
+                </Layout>
+              }
+            />
+            <Route
+              path="/settings/security"
+              element={
+                <Layout>
+                  <AdvancedSettings />
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventory"
+              element={
+                <Layout>
+                  <InventoryDashboard />
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventory/dashboard"
+              element={
+                <Layout>
+                  <InventoryDashboard />
+                </Layout>
+              }
+            />
+            <Route
+              path="/warehouses"
+              element={
+                <Layout>
+                  <Warehouses />
+                </Layout>
+              }
+            />
+            <Route
+              path="/items"
+              element={
+                <Layout>
+                  <Items />
+                </Layout>
+              }
+            />
+            <Route
+              path="/suppliers"
+              element={
+                <Layout>
+                  <Suppliers />
+                </Layout>
+              }
+            />
+            <Route
+              path="/suppliers/add"
+              element={
+                <Layout>
+                  <AddSupplier />
+                </Layout>
+              }
+            />
+            <Route
+              path="/suppliers/approval"
+              element={
+                <Layout>
+                  <SupplierApproval />
+                </Layout>
+              }
+            />
+            <Route
+              path="/suppliers/products"
+              element={
+                <Layout>
+                  <SupplierProducts />
+                </Layout>
+              }
+            />
+            <Route
+              path="/suppliers/settings"
+              element={
+                <Layout>
+                  <Suppliers />
+                </Layout>
+              }
+            />
+            <Route
+              path="/suppliers/management"
+              element={
+                <Layout>
+                  <Suppliers />
+                </Layout>
+              }
+            />
+            <Route
+              path="/suppliers/contracts"
+              element={
+                <Layout>
+                  <Suppliers />
+                </Layout>
+              }
+            />
+            <Route
+              path="/suppliers/payments"
+              element={
+                <Layout>
+                  <Suppliers />
+                </Layout>
+              }
+            />
+            <Route
+              path="/suppliers/evaluation"
+              element={
+                <Layout>
+                  <Suppliers />
+                </Layout>
+              }
+            />
+            <Route
+              path="/suppliers/reports"
+              element={
+                <Layout>
+                  <Suppliers />
+                </Layout>
+              }
+            />
+            <Route
+              path="/purchase-orders"
+              element={
+                <Layout>
+                  <PurchaseOrders />
+                </Layout>
+              }
+            />
+            <Route
+              path="/goods-receipt"
+              element={
+                <Layout>
+                  <GoodsReceipt />
+                </Layout>
+              }
+            />
+            <Route
+              path="/invoice-processing"
+              element={
+                <Layout>
+                  <InvoiceProcessing />
+                </Layout>
+              }
+            />
+            <Route
+              path="/purchase-returns"
+              element={
+                <Layout>
+                  <PurchaseReturns />
+                </Layout>
+              }
+            />
+            <Route
+              path="/debit-note"
+              element={
+                <Layout>
+                  <DebitNote />
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventory-transactions"
+              element={
+                <Layout>
+                  <InventoryTransactions />
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventory/opening-stock"
+              element={
+                <Layout>
+                  <OpeningStock />
+                </Layout>
+              }
+            />
+            <Route
+              path="/procurement/settings"
+              element={
+                <Layout>
+                  <ProcurementSettings />
+                </Layout>
+              }
+            />
+            <Route
+              path="/procurement/requisition"
+              element={
+                <Layout>
+                  <PurchaseRequisition />
+                </Layout>
+              }
+            />
+            <Route
+              path="/procurement/rfq"
+              element={
+                <Layout>
+                  <RequestForQuotation />
+                </Layout>
+              }
+            />
+            <Route
+              path="/procurement/approval"
+              element={
+                <Layout>
+                  <ApprovalWorkflow />
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventory/movement-log"
+              element={
+                <Layout>
+                  <InventoryMovementLog />
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventory/stocktaking"
+              element={
+                <Layout>
+                  <StockTaking />
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventory/policies"
+              element={
+                <Layout>
+                  <InventoryPolicies />
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventory/analytics"
+              element={
+                <Layout>
+                  <InventoryAnalytics />
+                </Layout>
+              }
+            />
+
             {/* Transport Platform Routes */}
-            <Route path="/suppliers/list" element={
-              <Layout>
-                <SuppliersList />
-              </Layout>
-            } />
-            <Route path="/clients/list" element={
-              <Layout>
-                <ClientsList />
-              </Layout>
-            } />
-            <Route path="/clients/add" element={
-              <Layout>
-                <ClientRegistration />
-              </Layout>
-            } />
-            <Route path="/clients/registration" element={
-              <Layout>
-                <ClientRegistration />
-              </Layout>
-            } />
-            <Route path="/clients/orders" element={
-              <Layout>
-                <ActiveOrders />
-              </Layout>
-            } />
-            <Route path="/clients/purchase-history" element={
-              <Layout>
-                <PurchaseHistory />
-              </Layout>
-            } />
-            <Route path="/clients/reports" element={
-              <Layout>
-                <ClientReports />
-              </Layout>
-            } />
-            <Route path="/clients/evaluation" element={
-              <Layout>
-                <ClientEvaluation />
-              </Layout>
-            } />
-            <Route path="/carriers/list" element={
-              <Layout>
-                <CarriersList />
-              </Layout>
-            } />
-            <Route path="/carriers/registration" element={
-              <Layout>
-                <CarrierRegistration />
-              </Layout>
-            } />
-            <Route path="/carriers/vehicles" element={
-              <Layout>
-                <CarrierVehicles />
-              </Layout>
-            } />
-            <Route path="/carriers/pricing" element={
-              <Layout>
-                <CarrierPricing />
-              </Layout>
-            } />
-            <Route path="/carriers/evaluation" element={
-              <Layout>
-                <CarrierEvaluation />
-              </Layout>
-            } />
-            <Route path="/carriers/coverage" element={
-              <Layout>
-                <CarrierCoverage />
-              </Layout>
-            } />
-            <Route path="/carriers/reports" element={
-              <Layout>
-                <CarrierReports />
-              </Layout>
-            } />
-            <Route path="/orders/new" element={
-              <Layout>
-                <NewOrder />
-              </Layout>
-            } />
-            <Route path="/orders/pending" element={
-              <Layout>
-                <PendingOrders />
-              </Layout>
-            } />
-            <Route path="/orders/processing" element={
-              <Layout>
-                <ProcessingOrders />
-              </Layout>
-            } />
-            <Route path="/orders/completed" element={
-              <Layout>
-                <OrdersList />
-              </Layout>
-            } />
-            <Route path="/orders/cancelled" element={
-              <Layout>
-                <OrdersList />
-              </Layout>
-            } />
-            <Route path="/orders/tracking" element={
-              <Layout>
-                <OrderTracking />
-              </Layout>
-            } />
-            <Route path="/products/all" element={
-              <Layout>
-                <ProductsList />
-              </Layout>
-            } />
-            <Route path="/products/categories" element={
-              <Layout>
-                <ProductCategories />
-              </Layout>
-            } />
-            <Route path="/products/units" element={
-              <Layout>
-                <ProductUnits />
-              </Layout>
-            } />
-            <Route path="/products/approved" element={
-              <Layout>
-                <ApprovedProducts />
-              </Layout>
-            } />
-            <Route path="/products/pending" element={
-              <Layout>
-                <PendingProducts />
-              </Layout>
-            } />
-            <Route path="/products/reports" element={
-              <Layout>
-                <ProductReports />
-              </Layout>
-            } />
-            
+            <Route
+              path="/suppliers/list"
+              element={
+                <Layout>
+                  <SuppliersList />
+                </Layout>
+              }
+            />
+            <Route
+              path="/clients/list"
+              element={
+                <Layout>
+                  <ClientsList />
+                </Layout>
+              }
+            />
+            <Route
+              path="/clients/add"
+              element={
+                <Layout>
+                  <ClientRegistration />
+                </Layout>
+              }
+            />
+            <Route
+              path="/clients/registration"
+              element={
+                <Layout>
+                  <ClientRegistration />
+                </Layout>
+              }
+            />
+            <Route
+              path="/clients/orders"
+              element={
+                <Layout>
+                  <ActiveOrders />
+                </Layout>
+              }
+            />
+            <Route
+              path="/clients/purchase-history"
+              element={
+                <Layout>
+                  <PurchaseHistory />
+                </Layout>
+              }
+            />
+            <Route
+              path="/clients/reports"
+              element={
+                <Layout>
+                  <ClientReports />
+                </Layout>
+              }
+            />
+            <Route
+              path="/clients/evaluation"
+              element={
+                <Layout>
+                  <ClientEvaluation />
+                </Layout>
+              }
+            />
+            <Route
+              path="/carriers/list"
+              element={
+                <Layout>
+                  <CarriersList />
+                </Layout>
+              }
+            />
+            <Route
+              path="/carriers/registration"
+              element={
+                <Layout>
+                  <CarrierRegistration />
+                </Layout>
+              }
+            />
+            <Route
+              path="/carriers/vehicles"
+              element={
+                <Layout>
+                  <CarrierVehicles />
+                </Layout>
+              }
+            />
+            <Route
+              path="/carriers/pricing"
+              element={
+                <Layout>
+                  <CarrierPricing />
+                </Layout>
+              }
+            />
+            <Route
+              path="/carriers/evaluation"
+              element={
+                <Layout>
+                  <CarrierEvaluation />
+                </Layout>
+              }
+            />
+            <Route
+              path="/carriers/coverage"
+              element={
+                <Layout>
+                  <CarrierCoverage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/carriers/reports"
+              element={
+                <Layout>
+                  <CarrierReports />
+                </Layout>
+              }
+            />
+            <Route
+              path="/orders/new"
+              element={
+                <Layout>
+                  <NewOrder />
+                </Layout>
+              }
+            />
+            <Route
+              path="/orders/pending"
+              element={
+                <Layout>
+                  <PendingOrders />
+                </Layout>
+              }
+            />
+            <Route
+              path="/orders/processing"
+              element={
+                <Layout>
+                  <ProcessingOrders />
+                </Layout>
+              }
+            />
+            <Route
+              path="/orders/completed"
+              element={
+                <Layout>
+                  <OrdersList />
+                </Layout>
+              }
+            />
+            <Route
+              path="/orders/cancelled"
+              element={
+                <Layout>
+                  <OrdersList />
+                </Layout>
+              }
+            />
+            <Route
+              path="/orders/tracking"
+              element={
+                <Layout>
+                  <OrderTracking />
+                </Layout>
+              }
+            />
+            <Route
+              path="/products/all"
+              element={
+                <Layout>
+                  <ProductsList />
+                </Layout>
+              }
+            />
+            <Route
+              path="/products/categories"
+              element={
+                <Layout>
+                  <ProductCategories />
+                </Layout>
+              }
+            />
+            <Route
+              path="/products/units"
+              element={
+                <Layout>
+                  <ProductUnits />
+                </Layout>
+              }
+            />
+            <Route
+              path="/products/approved"
+              element={
+                <Layout>
+                  <ApprovedProducts />
+                </Layout>
+              }
+            />
+            <Route
+              path="/products/pending"
+              element={
+                <Layout>
+                  <PendingProducts />
+                </Layout>
+              }
+            />
+            <Route
+              path="/products/reports"
+              element={
+                <Layout>
+                  <ProductReports />
+                </Layout>
+              }
+            />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
