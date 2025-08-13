@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const loginSchema = require("../../ajv/loginSchema");
 const RegisterSchema = require("../../ajv/registerationSchema");
 
+
 module.exports = {
   userData: [
     body("name").isString().withMessage("name must be a string"),
@@ -35,9 +36,13 @@ module.exports = {
   ],
   signUpDataValidation: [
     (req, res, next) => {
+      // Convert role_id to integer if present
+      if (req.body.role_id !== undefined) {
+        req.body.role_id = parseInt(req.body.role_id, 10);
+      }
       const isValid = ajv.validate(RegisterSchema, req.body);
       if (!isValid) {
-        next(new Error(ajv.errorsText()));
+        return next(new Error(ajv.errorsText()));
       }
       next();
     },
@@ -56,4 +61,17 @@ module.exports = {
       }
     },
   ],
+  updateUserDataValidation : [
+    (req, res, next) => {
+      if (req.body.role_id !== undefined) {
+        req.body.role_id = parseInt(req.body.role_id, 10);
+      }
+      const updateSchema = { ...RegisterSchema, required: [] };
+      const isValid = ajv.validate(updateSchema, req.body);
+      if (!isValid) {
+        return next(new Error(ajv.errorsText()));
+      }
+      next();
+    },
+  ]
 };

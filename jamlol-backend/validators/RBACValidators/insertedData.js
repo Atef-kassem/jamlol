@@ -27,7 +27,7 @@ module.exports = {
       };
       const isValid = ajv.validate(updateSchema, req.body);
       if (!isValid) {
-        next(new Error(ajv.errorsText()));
+        return next(new Error(ajv.errorsText()));
       }
       next();
     },

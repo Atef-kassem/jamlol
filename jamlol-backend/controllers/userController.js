@@ -34,11 +34,10 @@ exports.getUser = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "succeed",
-    data: user,
+    user,
   });
 });
 
-// ! not working yet
 
 exports.updateUser = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -47,17 +46,23 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     throw new Error("User not found");
   }
 
+  // Handle file upload for photo
+  let photoPath = user.photo;
+  if (req.file) {
+    photoPath = require('path').join('uploads', req.file.filename);
+  }
+
   // Update multiple fields
   user.set({
-    ...user,
     ...req.body,
+    photo: photoPath,
   });
 
   await user.save();
 
   res.status(200).json({
     status: "success",
-    data: user,
+    user,
   });
 });
 
@@ -125,10 +130,15 @@ exports.deActivateUser = catchAsync(async (req, res, next) => {
 });
 
 exports.CreateUser = catchAsync(async (req, res, next) => {
-  const { role_id, name, username, phone, email, photo, address, password, person_type, approval_code, status } =
-    req.body;
+  const { role_id, name, username, phone, email, address, password, person_type, approval_code, status } = req.body;
 
-  // TODO 3) Role check and assigning role with user to user role tabel
+  // Handle file upload for photo
+  let photoPath = null;
+  if (req.file) {
+    photoPath = require('path').join('uploads', req.file.filename);
+  }
+
+  // Role check and assigning role with user to user role table
   const roleData = await Role.findOne({
     where: { id: role_id },
   });
@@ -136,14 +146,15 @@ exports.CreateUser = catchAsync(async (req, res, next) => {
   if (!roleData) {
     return next(new AppError("Role not found", 404));
   }
-  //  TODO 4) Create user
+
+  // Create user
   const newUser = await User.create({
     role_id,
     name,
     username,
     phone,
     email,
-    photo,
+    photo: photoPath,
     address,
     password,
     person_type,
@@ -158,9 +169,7 @@ exports.CreateUser = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: "succeed",
     message: "User created successfully",
-    data: {
       user: newUser,
-    },
   });
 });
 

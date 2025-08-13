@@ -45,7 +45,7 @@ exports.updateApp = catchAsync(async (req, res, next) => {
   if (req.file) {
     appLogoPath = path.join("uploads", req.file.filename);
   }
-
+console.log(appLogoPath)
   // Merge req.body and app_logo path
   const updateData = {
     ...req.body,
