@@ -9,7 +9,6 @@ export const appApi = jamlolApi.injectEndpoints({
         method: 'GET',
       }),
       transformResponse: (response) => response.app[0],
-
       providesTags: ['App'],
     }),
     updateApp: builder.mutation({
