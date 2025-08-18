@@ -20,7 +20,32 @@ export const roleApi = jamlolApi.injectEndpoints({
       transformResponse: (response) => response.role,
       invalidatesTags: ['Roles'],
     }),
+    updateRole: builder.mutation({
+      query: ({id, data}) => ({
+        url: `/roles/${id}`,
+        method: 'PATCH',
+        body: data,
+      }),
+      transformResponse: (response) => response.role,
+      invalidatesTags: ['Roles'],
+    }),
+    assignPermissionsToRole: builder.mutation({
+      query: ({id, permissions}) => ({
+        url: `/roles/${id}/assign-permissions`,
+        method: 'PATCH',
+        body: permissions,
+      }),
+      transformResponse: (response) => response.role,
+      invalidatesTags: ['Roles'],
+    }),
+    deleteRole: builder.mutation({
+      query: (id) => ({
+        url: `/roles/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Roles'],
+    }),
   }),
 });
 
-export const { useGetAllRolesQuery, useCreateRoleMutation } = roleApi;
+export const { useGetAllRolesQuery, useCreateRoleMutation, useUpdateRoleMutation, useDeleteRoleMutation, useAssignPermissionsToRoleMutation } = roleApi;

@@ -98,6 +98,7 @@ const Login = () => {
       const response = await login(credentials).unwrap();
        // Check user type
        const decoded = jwtDecode(response.token);
+       console.log(decoded)
     if (decoded.person_type !== 'admin') { 
       setErrors({ general: "غير مسموح لك بالدخول للوحة التحكم" });
       return;

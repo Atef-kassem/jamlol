@@ -13,6 +13,6 @@ export const jamlolApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Users", "App","Transaction", "Customers", "Geography", "OverallStat", "Dashboard"],
+  tagTypes: ["Users", "App","Roles", "Permissions", "Geography", "OverallStat", "Dashboard"],
   endpoints: () => ({}),
 });

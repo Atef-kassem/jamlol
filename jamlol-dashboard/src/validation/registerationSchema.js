@@ -42,7 +42,7 @@ const registerSchema = Yup.object().shape({
     .nullable(),
   role_id: Yup.number()
     .integer("معرف الدور يجب أن يكون عددًا صحيحًا")
-    .required("معرف الدور مطلوب"),
+    .nullable(),
 });
 
 export default registerSchema;

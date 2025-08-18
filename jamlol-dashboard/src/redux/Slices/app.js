@@ -12,10 +12,10 @@ export const appApi = jamlolApi.injectEndpoints({
       providesTags: ['App'],
     }),
     updateApp: builder.mutation({
-      query: ({ formData }) => ({
-        url: `/app/${formData.get('id')}`,
+      query: ({id,formDataToSend}) => ({
+        url: `/app/${id}`,
         method: 'PATCH',
-        body: formData,
+        body: formDataToSend,
       }),
       transformResponse: (response) => response.app,
       invalidatesTags: ['App'],

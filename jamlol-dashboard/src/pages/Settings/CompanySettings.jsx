@@ -45,6 +45,13 @@ const getLogoUrl = (logoPath) => {
   return logoPath;
 };
 
+// Spinner بسيط (يمكنك استبداله بأي مكون لديك)
+const Spinner = (props) => (
+  <svg {...props} viewBox="0 0 50 50" className={props.className || "animate-spin"}>
+    <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" strokeWidth="5" strokeDasharray="31.4 31.4" />
+  </svg>
+);
+
 export default function CompanySettings() {
   const { toast } = useToast();
   const {
@@ -81,9 +88,7 @@ export default function CompanySettings() {
 
   useEffect(() => {
     if (appData) {
-      console.log("appData:", appData);
       setFormData({
-        ...formData,
         ...appData,
       });
     }
@@ -177,12 +182,14 @@ export default function CompanySettings() {
     try {
       await appInfoSchema.validate(formData, { abortEarly: false });
       const formDataToSend = new FormData();
-      for (const key in formData) {
-        if (formData[key] !== undefined && formData[key] !== null) {
-          formDataToSend.append(key, formData[key]);
+      // Remove 'id' from the data to be sent
+      const { id, ...formDataWithoutId } = formData;
+      for (const key in formDataWithoutId) {
+        if (formDataWithoutId[key] !== undefined && formDataWithoutId[key] !== null) {
+          formDataToSend.append(key, formDataWithoutId[key]);
         }
       }
-      const res = await updateApp({ id: formData.id, formData: formDataToSend }).unwrap();
+      const res = await updateApp({id, formDataToSend }).unwrap();
       console.log("API Response:", res);
       setFormData(res.app);
       toast({
@@ -191,7 +198,6 @@ export default function CompanySettings() {
         variant: "default",
       });
     } catch (error) {
-      console.log("Error:", error);
       if (error.name === "ValidationError") {
         const validationErrors = {};
         error.inner.forEach((e) => {
@@ -208,8 +214,23 @@ export default function CompanySettings() {
     }
   };
 
+  if (isAppLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <Spinner className="w-12 h-12 text-green-600 animate-spin" />
+        <span className="ml-4 text-lg">جاري تحميل البيانات...</span>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {isUpdateLoading && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black bg-opacity-40">
+          <Spinner className="w-16 h-16 text-green-600 animate-spin" />
+          <span className="mt-4 text-xl text-white font-bold">جاري حفظ البيانات...</span>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary-blue bg-clip-text text-transparent">
@@ -288,7 +309,13 @@ export default function CompanySettings() {
                   <input
                     id="app_primary_color"
                     type="color"
-                    value={formData?.app_primary_color.replace(/^"|"$/g, "")}
+                    value={
+                      (formData?.app_primary_color || "#000000")
+                        .toString()
+                        .trim()
+                        .replace(/['"]/g, "")
+                        .replace(/\s/g, "")
+                    }
                     onChange={(e) => handleInputChange("app_primary_color", e.target.value)}
                     className="w-12 h-12 p-0 border rounded cursor-pointer"
                   />

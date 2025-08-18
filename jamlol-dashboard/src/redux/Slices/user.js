@@ -3,9 +3,11 @@ import { jamlolApi } from "./api";
 export const userApi = jamlolApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllUsers: builder.query({
-      query: () => ({
+      query: (userType) => ({ 
         url: `/users`,
         method: "GET",
+        params: { person_type: userType }, 
+
       }),
       transformResponse: (response) => response.data,
       providesTags: ['Users'],
@@ -43,7 +45,14 @@ export const userApi = jamlolApi.injectEndpoints({
       transformResponse: (response) => response.user,
       providesTags: ['Users'],
     }),
+    assignRoleToUser: builder.mutation({
+      query: ({id, roleId}) => ({
+        url: `/users/${id}/assign-role`,
+        method: "PATCH",
+        body: { role_id: roleId },
+      }),
+    }),
   }),
 });
 
-export const { useGetAllUsersQuery, useCreateUserMutation, useUpdateUserMutation, useDeleteUserMutation, useGetUserByIdQuery } = userApi;
+export const { useGetAllUsersQuery, useCreateUserMutation, useUpdateUserMutation, useDeleteUserMutation, useGetUserByIdQuery ,useAssignRoleToUserMutation} = userApi;

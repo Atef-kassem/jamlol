@@ -63,7 +63,7 @@ export default function UsersSettings() {
     address: "",
     password: "",
     person_type: "client",
-    role_id: "",
+    role_id: null,
     approval_code: "",
     status: "inActive",
   });
@@ -158,7 +158,7 @@ export default function UsersSettings() {
       address: "",
       password: "",
       person_type: "",
-      role_id: "",
+      role_id: null ,
       approval_code: "",
       status: "inActive",
     });
@@ -185,7 +185,7 @@ export default function UsersSettings() {
       address: user.address || "",
       password: "", // Do not prefill password for security
       person_type: user.person_type || "",
-      role_id: user.role_id || "",
+      role_id: user.role_id || null,
       approval_code: user.approval_code || "",
       status: user.status || "inActive",
     });
@@ -212,7 +212,7 @@ export default function UsersSettings() {
   const handleToggleStatus = (userId) => {
     setUsers(prev => prev.map(user => 
       user.id === userId 
-        ? { ...user, status: user.status === "active" ? "inactive" : "active", lastModified: new Date().toISOString() }
+        ? { ...user, status: user.status === "active" ? "inActive" : "active", lastModified: new Date().toISOString() }
         : user
     ));
   };
@@ -638,7 +638,7 @@ export default function UsersSettings() {
                 <div>
                   <Label htmlFor="role_id" className="flex items-center gap-2">
                     <FileText className="w-3 h-3 text-primary" />
-                    معرف الدور *
+                    معرف الدور 
                   </Label>
                   <Select 
                     value={formData.role_id} 
