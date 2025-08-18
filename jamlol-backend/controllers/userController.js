@@ -4,11 +4,16 @@ const { Role, User } = require("../Model");
 const { where } = require("sequelize");
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10, person_type } = req.query;
   const offset = (page - 1) * limit;
+  const whereClause = {};
+  if (person_type) {
+    whereClause.person_type = person_type;
+  }
   const users = await User.findAndCountAll({
+    where: whereClause,
     include: [{ model: Role, attributes: ["name"] }],
-    attributes: { exclude: ["password"] }, // Exclude password field
+    attributes: { exclude: ["password"] },
     offset,
     limit,
   });
@@ -130,7 +135,7 @@ exports.deActivateUser = catchAsync(async (req, res, next) => {
 });
 
 exports.CreateUser = catchAsync(async (req, res, next) => {
-  const { role_id, name, username, phone, email, address, password, person_type, approval_code, status } = req.body;
+  const { name, username, phone, email, address, password, person_type, approval_code, status, role_id } = req.body;
 
   // Handle file upload for photo
   let photoPath = null;
@@ -138,18 +143,17 @@ exports.CreateUser = catchAsync(async (req, res, next) => {
     photoPath = require('path').join('uploads', req.file.filename);
   }
 
-  // Role check and assigning role with user to user role table
-  const roleData = await Role.findOne({
-    where: { id: role_id },
-  });
-
-  if (!roleData) {
-    return next(new AppError("Role not found", 404));
+  // If role_id is provided, check if it exists
+  if (role_id) {
+    const roleData = await Role.findByPk(role_id);
+    if (!roleData) {
+      return next(new AppError("Role not found", 404));
+    }
   }
 
   // Create user
   const newUser = await User.create({
-    role_id,
+    role_id: role_id || null,
     name,
     username,
     phone,
@@ -169,8 +173,32 @@ exports.CreateUser = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: "succeed",
     message: "User created successfully",
-      user: newUser,
+    user: newUser,
   });
+});
+
+exports.assignRoleToUser = catchAsync(async (req, res, next) => {
+  const{id} = req.params;
+  const {role_id } = req.body;
+  const user = await User.findByPk(id);
+
+  if(!user){
+    return next(new AppError("User not found", 404));
+  }
+  const role = await Role.findByPk(role_id);
+  if(!role){
+    return next(new AppError("Role not found", 404));
+  }
+ user.set({
+  role_id,
+});
+
+await user.save();
+
+res.status(200).json({
+  status: "success",
+  user,
+});
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {

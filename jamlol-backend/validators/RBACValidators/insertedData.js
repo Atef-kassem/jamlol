@@ -70,4 +70,12 @@ module.exports = {
     body("name").optional().isString().withMessage("Role name must be a string"),
     param("id").isInt().withMessage("Role ID must be a number"),
   ],
+  assignPermissionsToRoleValidation: [
+    (req, res, next) => {
+      if (!Array.isArray(req.body.Permissions) || req.body.Permissions.length === 0) {
+        return next(new Error("Permissions array is required"));
+      }
+      next();
+    },
+  ],
 };

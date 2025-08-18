@@ -45,7 +45,7 @@ const User = sequelize.define(
       references: {
         model: { model: "Role", key: "id" },
       },
-      allowNull: false,
+      allowNull: true,
     },
     approval_code: {
       type: DataTypes.STRING,

@@ -35,7 +35,7 @@ exports.createApp = catchAsync(async (req, res, next) => {
 });
 
 exports.updateApp = catchAsync(async (req, res, next) => {
-  const app = await AppInfo.findByPk(req.params.id);
+  const app = await AppInfo.findByPk(req.params.id *1);
   if (!app) {
     return next(new AppError("App not found", 404));
   }

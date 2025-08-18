@@ -25,7 +25,7 @@ const RegisterSchema = {
     status: { type: "string", enum: ["active", "inActive"] },
     role_id: { type: "integer" },
   },
-  required: ["name", "username", "email", "password", "person_type", "role_id"],
+  required: ["name", "username", "email", "password", "person_type"],
   additionalProperties: false,
 };
 ajv.compile(RegisterSchema);

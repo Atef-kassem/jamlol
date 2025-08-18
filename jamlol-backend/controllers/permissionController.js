@@ -31,7 +31,6 @@ exports.getAllPermissions = catchAsync(async (req, res, next) => {
 
 exports.updatePermission = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { name, slug, groupBy } = req.body;
 
   const permission = await Permission.findByPk(id);
   if (!permission) {
@@ -50,16 +49,16 @@ exports.updatePermission = catchAsync(async (req, res, next) => {
 
 exports.deletePermission = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const rolePermissions = await RolePermission.findAll({
-    where: { permissionId: id },
-  });
+  // const rolePermissions = await RolePermission.findAll({
+  //   where: {   permission_id: id },
+  // });
 
-  if (rolePermissions.length > 0) {
-    return res.status(400).json({
-      success: false,
-      message: "Cannot delete permission because it is associated with one or more roles",
-    });
-  }
+  // if (rolePermissions.length > 0) {
+  //   return res.status(400).json({
+  //     status: "failed",
+  //     message: "Cannot delete permission because it is associated with one or more roles",
+  //   });
+  // }
 
   // Find the permission
   const permission = await Permission.findByPk(id);

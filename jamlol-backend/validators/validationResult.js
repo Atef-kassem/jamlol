@@ -8,10 +8,9 @@ module.exports = {
       .array()
       .map((error) => error.msg)
       .join(",");
-    let error = new appError(message, 400);
     if (!errors.isEmpty()) {
-      error.status = 500;
-      next(error);
+      let error = new appError(message, 400);
+      return next(error);
     }
     next();
   },
