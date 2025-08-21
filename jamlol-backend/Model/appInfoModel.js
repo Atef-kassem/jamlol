@@ -63,6 +63,7 @@ const AppInfo = sequelize.define(
   },
   {
     timestamps: false,
+    tableName: "app_info",
   }
 );
 

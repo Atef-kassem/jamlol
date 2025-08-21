@@ -11,12 +11,17 @@ const dotenv = require("dotenv").config();
 const { connectDB } = require("./Config/dbConfig");
 const appError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
-const authRouter = require("./routes/authRoutes");
-const appRouter = require("./routes/appRoutes");
-const userRouter = require("./routes/userRoutes");
-const roleRouter = require("./routes/roleRoutes");
-const permissionRouter = require("./routes/permissionRoutes");
-const rolePermissionRouter = require("./routes/rolePermissionRoutes");
+const authRouter = require("./routes/AuthRoutes/authRoutes");
+const appRouter = require("./routes/AppRoutes/appRoutes");
+const userRouter = require("./routes/UserRoutes/userRoutes");
+const roleRouter = require("./routes/RBACRoutes/roleRoutes");
+const permissionRouter = require("./routes/RBACRoutes/permissionRoutes");
+const rolePermissionRouter = require("./routes/RBACRoutes/rolePermissionRoutes");
+const managementRouter = require("./routes/ManagementRoutes/managementRoutes");
+const countryRouter = require("./routes/GeoLocationRoutes/countryRoutes");
+const cityRouter = require("./routes/GeoLocationRoutes/cityRoutes");
+const regionRouter = require("./routes/GeoLocationRoutes/regionRoutes");
+
 const cors = require("cors");
 // ! start express app & connect to db
 
@@ -58,7 +63,7 @@ app.use((req, res, next) => {
   res.locals.nonce = nonce;
   next();
 });
-app.use("/api", rateLimitter); // * rate limiting
+// app.use("/api", rateLimitter); // * rate limiting
 // * prevent http parameter pollution
 
 // ! Body parser
@@ -80,6 +85,10 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/roles", roleRouter);
 app.use("/api/v1/permissions", permissionRouter);
 app.use("/api/v1/rolepermissions", rolePermissionRouter);
+app.use("/api/v1/management", managementRouter);
+app.use("/api/v1/countries", countryRouter);
+app.use("/api/v1/cities", cityRouter);
+app.use("/api/v1/regions", regionRouter);
 // ! handling unhandled routes
 const server = app.use((req, res, next) => {
   next(new appError(`Can't find ${req.originalUrl} on this server!`, 404));

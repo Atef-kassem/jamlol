@@ -2,9 +2,9 @@
 const { body, param } = require("express-validator");
 const Ajv = require("ajv").default;
 const ajv = new Ajv();
-const permissionSchema = require("../../ajv/permissionSchema");
-const permissionModel = require("../../Model/permissionModel");
-const roleSchema = require("../../ajv/roleSchema");
+const permissionSchema = require("../../ajv/RBACSchemas/permissionSchema");
+const permissionModel = require("../../Model");
+const roleSchema = require("../../ajv/RBACSchemas/roleSchema");
 
 module.exports = {
   createPermissionValidation: [
@@ -17,7 +17,7 @@ module.exports = {
     },
     body("name").isString().withMessage("Permission name must be a string"),
     body("slug").optional().isString().withMessage("Slug must be a string"),
-    body("groupBy").optional().isInt().withMessage("groupBy must be an integer"),
+    body("management_id").optional().isInt().withMessage("management_id must be an integer"),
   ],
   updatePermissionValidation: [
     (req, res, next) => {
@@ -33,7 +33,7 @@ module.exports = {
     },
     body("name").optional().isString().withMessage("Permission name must be a string"),
     body("slug").optional().isString().withMessage("Slug must be a string"),
-    body("groupBy").optional().isInt().withMessage("groupBy must be an integer"),
+    body("management_id").optional().isInt().withMessage("management_id must be an integer"),
     param("id").isInt().withMessage("Permission ID must be a number"),
     async (req, res, next) => {
       try {
@@ -68,14 +68,7 @@ module.exports = {
       next();
     },
     body("name").optional().isString().withMessage("Role name must be a string"),
+    body("permissions").optional().isArray().withMessage("Permissions must be an array"),
     param("id").isInt().withMessage("Role ID must be a number"),
-  ],
-  assignPermissionsToRoleValidation: [
-    (req, res, next) => {
-      if (!Array.isArray(req.body.Permissions) || req.body.Permissions.length === 0) {
-        return next(new Error("Permissions array is required"));
-      }
-      next();
-    },
   ],
 };

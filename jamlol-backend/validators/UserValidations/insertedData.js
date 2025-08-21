@@ -4,8 +4,8 @@ const userModel = require("../../Model/userModel"); // تأكدي إن ده mode
 const Ajv = require("ajv").default;
 const ajv = new Ajv();
 const bcrypt = require("bcrypt");
-const loginSchema = require("../../ajv/loginSchema");
-const RegisterSchema = require("../../ajv/registerationSchema");
+const loginSchema = require("../../ajv/AuthSchemas/loginSchema");
+const RegisterSchema = require("../../ajv/AuthSchemas/registerationSchema");
 
 
 module.exports = {

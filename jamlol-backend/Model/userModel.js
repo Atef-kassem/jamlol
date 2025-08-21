@@ -43,7 +43,8 @@ const User = sequelize.define(
     role_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: { model: "Role", key: "id" },
+        model: "tbl_role",
+        key: "id",
       },
       allowNull: true,
     },
@@ -58,7 +59,7 @@ const User = sequelize.define(
   },
   {
     timestamps: true,
-    tableName: "users",
+    tableName: "user",
     hooks: {
       beforeCreate: async (user) => {
         if (user.password) {
