@@ -123,6 +123,13 @@ const menuSections = [
             description: "تحديد الصلاحيات",
           },
           {
+            title: "إدارات النظام",
+            url: "/settings/managements",
+            icon: Building2,
+            color: "text-blue-500",
+            description: "إدارة أقسام النظام",
+          },
+          {
             title: "إعدادات السمات",
             url: "/settings/themes",
             icon: Palette,
@@ -131,7 +138,7 @@ const menuSections = [
           },
           {
             title: "ادارة العناوين",
-            url: "/settings/system",
+            url: "/settings/geolocation",
             icon: Settings,
             color: "text-indigo-500",
             description: "إعدادات النظام والخدمات",

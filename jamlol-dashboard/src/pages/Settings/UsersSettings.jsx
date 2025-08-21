@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Save, Upload, FileText, User, Eye, Lock, UserCheck, UserX, Search, Filter, Plus, Edit, Trash2, Users } from "lucide-react";
+import { Save, Upload, FileText, User, Eye, Lock, UserCheck, UserX, Search, Filter, Plus, Edit, Trash2, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useGetAllUsersQuery, useCreateUserMutation, useUpdateUserMutation, useDeleteUserMutation, useGetUserByIdQuery } from "../../redux/Slices/user";
 import { useGetAllRolesQuery } from "../../redux/Slices/role";
@@ -207,6 +218,14 @@ export default function UsersSettings() {
       variant: "destructive",
     });
    }
+  };
+
+  const [selectedUserForDetails, setSelectedUserForDetails] = useState(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+
+  const handleViewUserDetails = (user) => {
+    setSelectedUserForDetails(user);
+    setIsDetailsDialogOpen(true);
   };
 
   const handleToggleStatus = (userId) => {
@@ -424,9 +443,8 @@ export default function UsersSettings() {
                       <TableHead>الاسم</TableHead>
                       <TableHead>اسم المستخدم</TableHead>
                       <TableHead>البريد الإلكتروني</TableHead>
-                      <TableHead>الجوال</TableHead>
                       <TableHead>نوع المستخدم</TableHead>
-                      <TableHead>كود الموافقة</TableHead>
+                      <TableHead>الدور</TableHead>
                       <TableHead>الحالة</TableHead>
                       <TableHead>تاريخ الإنشاء</TableHead>
                       <TableHead>الإجراءات</TableHead>
@@ -435,42 +453,73 @@ export default function UsersSettings() {
                   <TableBody>
                     {filteredUsers.map((user) => (
                       <TableRow key={user.id} className="hover:bg-muted/50 transition-colors duration-200">
-                        <TableCell className="font-medium">{user.id}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                        
-                            <span>{user.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>{user.username}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.phone}</TableCell>
+                                                <TableCell className="font-medium text-center">{user.id}</TableCell>
+                        <TableCell className="text-center">{user.name}</TableCell>
+                        <TableCell className="text-center">{user.username}</TableCell>
+                        <TableCell className="text-center">{user.email}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                             {getUserTypeName(user.person_type)}
                           </Badge>
                         </TableCell>
-                        <TableCell>{user.approval_code}</TableCell>
-                        <TableCell>{getStatusBadge(user.status)}</TableCell>
+                                                 <TableCell>
+                           <div className="bg-secondary-blue/10 text-secondary-blue px-3 py-1 rounded-lg font-medium text-center text-sm">
+                             {user.Role?.name || "بدون دور"}
+                           </div>
+                         </TableCell>
+                         <TableCell>
+                           <div className="bg-success/10 text-success px-3 py-1 rounded-lg font-medium text-center text-sm">
+                             {user.status === "active" ? "نشط" : "غير نشط"}
+                           </div>
+                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">{formatDate(user.createdAt)}</TableCell>
                         <TableCell>
                           <div className="flex gap-1">
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleEdit(user)}
-                              className="hover:bg-primary/10 hover:text-primary transition-colors duration-200"
+                              onClick={() => handleViewUserDetails(user)}
+                              className="hover:bg-secondary-blue/10 hover:text-secondary-blue transition-colors duration-200"
+                              title="عرض التفاصيل"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Eye className="w-4 h-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleDelete(user.id)}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors duration-200"
+                              onClick={() => handleEdit(user)}
+                              className="hover:bg-primary/10 hover:text-primary transition-colors duration-200"
+                              title="تعديل"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Edit className="w-4 h-4" />
                             </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors duration-200"
+                                  title="حذف"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    هل أنت متأكد أنك تريد حذف المستخدم "{user.name}"؟ لا يمكن التراجع عن هذا الإجراء.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDelete(user.id)} disabled={isDeletingUser}>
+                                    {isDeletingUser && <span className="animate-spin mr-2">⏳</span>}
+                                    نعم، احذف
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -659,10 +708,32 @@ export default function UsersSettings() {
 
               <div className="grid gap-4 md:grid-cols-1">
                 <div>
-                  <Label htmlFor="photo" className="flex items-center gap-2">
-                    <Upload className="w-3 h-3 text-primary" />
+                  <Label htmlFor="photo" className="flex items-center gap-2 mb-4">
+                    <Upload className="w-4 h-4 text-primary" />
                     صورة المستخدم
                   </Label>
+                  
+                  {/* عرض الصورة الحالية */}
+                  <div className="flex justify-center mb-4">
+                    {formData.photo && typeof formData.photo === "string" ? (
+                      <img
+                        src={`http://localhost:5000/${formData.photo.replace(/\\/g, '/')}`}
+                        alt="صورة المستخدم"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-primary/20 shadow-lg"
+                      />
+                    ) : formData.photo && formData.photo instanceof File ? (
+                      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/20 to-secondary-blue/20 flex items-center justify-center border-4 border-primary/20 shadow-lg">
+                        <span className="text-primary font-medium text-center text-sm">
+                          تم اختيار<br />صورة جديدة
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/20 to-secondary-blue/20 flex items-center justify-center border-4 border-primary/20 shadow-lg">
+                        <User className="w-16 h-16 text-primary/60" />
+                      </div>
+                    )}
+                  </div>
+                  
                   <Input
                     id="photo"
                     type="file"
@@ -671,18 +742,13 @@ export default function UsersSettings() {
                     onChange={handleFileChange}
                     className={`focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${errors.photo ? "border-destructive" : ""}`}
                   />
+                  
                   {formData.photo && formData.photo instanceof File && (
-                    <p className="text-sm text-muted-foreground mt-2">
+                    <p className="text-sm text-muted-foreground mt-2 text-center">
                       الملف المختار: {formData.photo.name}
                     </p>
                   )}
-                  {formData.photo && typeof formData.photo === "string" && (
-                    <img
-                      src={`http://localhost:5000/${formData.photo.replace(/\\/g, '/')}`}
-                      alt="User"
-                      className="w-10 h-10 rounded-full object-cover mt-2"
-                    />
-                  )}
+                  
                   {errors.photo && <p className="text-sm text-destructive mt-1">{errors.photo}</p>}
                 </div>
               </div>
@@ -729,6 +795,134 @@ export default function UsersSettings() {
           </Card>
         </TabsContent>
       </Tabs>
+
+             {/* Dialog لعرض تفاصيل المستخدم */}
+       {selectedUserForDetails && (
+         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+           <div className="bg-white rounded-xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+             <div className="flex items-center justify-between mb-8">
+               <h2 className="text-3xl font-bold text-primary">تفاصيل المستخدم</h2>
+               <Button
+                 variant="ghost"
+                 size="icon"
+                 onClick={() => {
+                   setSelectedUserForDetails(null);
+                   setIsDetailsDialogOpen(false);
+                 }}
+                 className="hover:bg-muted/50 w-10 h-10"
+               >
+                 <X className="w-5 h-5" />
+               </Button>
+             </div>
+             
+             {/* الصورة الشخصية في الأعلى */}
+             <div className="flex justify-center mb-8">
+               <div className="relative">
+                 {selectedUserForDetails.photo ? (
+                   <img
+                     src={`http://localhost:5000/${selectedUserForDetails.photo.replace(/\\/g, '/')}`}
+                     alt="صورة المستخدم"
+                     className="w-40 h-40 rounded-full object-cover shadow-lg border-4 border-primary/20"
+                   />
+                 ) : (
+                   <div className="w-40 h-40 rounded-full bg-gradient-to-br from-primary/20 to-secondary-blue/20 flex items-center justify-center shadow-lg border-4 border-primary/20">
+                     <User className="w-20 h-20 text-primary/60" />
+                   </div>
+                 )}
+               </div>
+             </div>
+             
+             <div className="grid gap-8 md:grid-cols-2">
+               {/* معلومات أساسية */}
+               <div className="space-y-6">
+                 <h3 className="text-xl font-semibold text-gray-800 border-b-2 border-primary/20 pb-3">المعلومات الأساسية</h3>
+                 
+                 <div className="space-y-4">
+                   <div>
+                     <Label className="text-sm font-medium text-gray-600 block mb-2">الاسم الكامل</Label>
+                     <p className="text-lg text-gray-900 font-medium bg-gray-50 p-3 rounded-lg">{selectedUserForDetails.name}</p>
+                   </div>
+                   
+                   <div>
+                     <Label className="text-sm font-medium text-gray-600 block mb-2">اسم المستخدم</Label>
+                     <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedUserForDetails.username}</p>
+                   </div>
+                   
+                   <div>
+                     <Label className="text-sm font-medium text-gray-600 block mb-2">البريد الإلكتروني</Label>
+                     <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedUserForDetails.email}</p>
+                   </div>
+                   
+                   <div>
+                     <Label className="text-sm font-medium text-gray-600 block mb-2">رقم الجوال</Label>
+                     <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedUserForDetails.phone || "غير محدد"}</p>
+                   </div>
+                   
+                   <div>
+                     <Label className="text-sm font-medium text-gray-600 block mb-2">العنوان</Label>
+                     <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedUserForDetails.address || "غير محدد"}</p>
+                   </div>
+                 </div>
+               </div>
+               
+               {/* معلومات النظام */}
+               <div className="space-y-6">
+                 <h3 className="text-xl font-semibold text-gray-800 border-b-2 border-primary/20 pb-3">معلومات النظام</h3>
+                 
+                 <div className="space-y-4">
+                   <div>
+                     <Label className="text-sm font-medium text-gray-600 block mb-2">نوع المستخدم</Label>
+                     <div className="bg-primary/10 text-primary px-4 py-2 rounded-lg font-medium text-center">
+                       {getUserTypeName(selectedUserForDetails.person_type)}
+                     </div>
+                   </div>
+                   
+                   <div>
+                     <Label className="text-sm font-medium text-gray-600 block mb-2">الدور</Label>
+                     <div className="bg-secondary-blue/10 text-secondary-blue px-4 py-2 rounded-lg font-medium text-center">
+                       {selectedUserForDetails.Role?.name || "بدون دور"}
+                     </div>
+                   </div>
+                   
+                                       <div>
+                      <Label className="text-sm font-medium text-gray-600 block mb-2">الحالة</Label>
+                      <div className="bg-success/10 text-success px-4 py-2 rounded-lg font-medium text-center">
+                        {selectedUserForDetails.status === "active" ? "نشط" : "غير نشط"}
+                      </div>
+                    </div>
+                   
+                   <div>
+                     <Label className="text-sm font-medium text-gray-600 block mb-2">كود الموافقة</Label>
+                     <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedUserForDetails.approval_code || "غير محدد"}</p>
+                   </div>
+                   
+                   <div>
+                     <Label className="text-sm font-medium text-gray-600 block mb-2">تاريخ الإنشاء</Label>
+                     <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{formatDate(selectedUserForDetails.createdAt)}</p>
+                   </div>
+                   
+                   <div>
+                     <Label className="text-sm font-medium text-gray-600 block mb-2">آخر تحديث</Label>
+                     <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{formatDate(selectedUserForDetails.updatedAt)}</p>
+                   </div>
+                 </div>
+               </div>
+             </div>
+             
+             <div className="flex justify-center mt-8 pt-8 border-t border-gray-200">
+               <Button
+                 onClick={() => {
+                   setSelectedUserForDetails(null);
+                   setIsDetailsDialogOpen(false);
+                 }}
+                 className="bg-primary hover:bg-primary/90 px-8 py-3 text-lg"
+               >
+                 إغلاق
+               </Button>
+             </div>
+           </div>
+         </div>
+       )}
     </div>
   );
 }

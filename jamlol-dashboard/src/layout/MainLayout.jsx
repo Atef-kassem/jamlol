@@ -13,9 +13,9 @@ import CompanySettings from "@/pages/Settings/CompanySettings";
 import BranchSettings from "@/pages/Settings/BranchSettings";
 import UsersSettings from "@/pages/Settings/UsersSettings";
 import ThemeSettings from "@/pages/Settings/ThemeSettings";
-import SystemSettings from "@/pages/Settings/SystemSettings";
 import TransportSettings from "@/pages/Settings/TransportSettings";
 import RolesPermissions from "@/pages/Settings/RolesPermissions";
+import ManagementSettings from "@/pages/Settings/ManagementSettings";
 import AddSupplier from "@/pages/Suppliers/AddSupplier";
 import SupplierApproval from "@/pages/Suppliers/SupplierApproval";
 import SupplierProducts from "@/pages/Suppliers/SupplierProducts";
@@ -48,6 +48,7 @@ import FinancialReports from "@/pages/Reports/FinancialReports";
 import ReportsSettings from "@/pages/Reports/ReportsSettings";
 import { TransportProvider } from "../contexts/TransportContext";
 import { AddressProvider } from '../contexts/AddressContext';
+import GeolocationSettings from "../pages/Settings/GeoLocationSettings";
 
 export default function MainLayout() {
   return (
@@ -68,10 +69,11 @@ export default function MainLayout() {
               <Route path="settings/branches" element={<BranchSettings />} />
               <Route path="settings/users" element={<UsersSettings />} />
               <Route path="settings/roles" element={<RolesPermissions />} />
+              <Route path="settings/managements" element={<ManagementSettings />} />
               <Route path="settings/themes" element={<ThemeSettings />} />
-              <Route path="settings/system" element={ 
+              <Route path="settings/geolocation" element={ 
               <AddressProvider>
-              <SystemSettings />
+              <GeolocationSettings />
               </AddressProvider>} />
               <Route path="settings/transport" element={<TransportProvider>
                 <TransportSettings />

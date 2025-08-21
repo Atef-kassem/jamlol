@@ -8,7 +8,7 @@ export const permissionApi = jamlolApi.injectEndpoints({
         url: '/permissions',
         method: 'GET',
       }),
-      transformResponse: (response) => response.data,
+      transformResponse: (response) => response.permissions,
       providesTags: ['Permissions'],
     }),
     createPermission: builder.mutation({
@@ -17,7 +17,7 @@ export const permissionApi = jamlolApi.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      transformResponse: (response) => response.data,
+      transformResponse: (response) => response.permission,
       invalidatesTags: ['Permissions'],
     }),
     updatePermission: builder.mutation({
@@ -26,7 +26,7 @@ export const permissionApi = jamlolApi.injectEndpoints({
         method: 'PATCH',
         body: data,
       }),
-      transformResponse: (response) => response.data,
+      transformResponse: (response) => response.permission,
       invalidatesTags: ['Permissions'],
     }),
     deletePermission: builder.mutation({

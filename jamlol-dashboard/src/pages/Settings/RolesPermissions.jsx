@@ -78,11 +78,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useAssignPermissionsToRoleMutation, useCreateRoleMutation, useDeleteRoleMutation, useGetAllRolesQuery, useUpdateRoleMutation } from "../../redux/Slices/role";
+import { useCreateRoleMutation, useDeleteRoleMutation, useGetAllRolesQuery, useUpdateRoleMutation } from "../../redux/Slices/role";
 import { useCreatePermissionMutation, useDeletePermissionMutation, useGetAllPermissionsQuery, useUpdatePermissionMutation } from "../../redux/Slices/permission";
 import roleSchema from "../../validation/roleSchema";
 import permissionSchema from "../../validation/permissionSchema";
 import { useGetAllUsersQuery, useAssignRoleToUserMutation } from "../../redux/Slices/user";
+import { useGetAllManagementsQuery, useGetManagementsWithPermissionsQuery } from "../../redux/Slices/management";
 
 
 // Spinner بسيط (يمكنك استبداله بأي مكون لديك)
@@ -109,27 +110,20 @@ export default function RolesPermissions() {
   const [createRole, { isLoading: isCreatingRole }] = useCreateRoleMutation();
   const [updateRole, { isLoading: isUpdatingRole }] = useUpdateRoleMutation();
   const [deleteRole, { isLoading: isDeletingRole }] = useDeleteRoleMutation();
-  const [assignPermissionsToRole, { isLoading: isAssigningPermissions }] = useAssignPermissionsToRoleMutation();
+
   const { data: rolesData, isLoading: isLoadingRoles, isError: isErrorRoles } = useGetAllRolesQuery();
   const [createPermission, { isLoading: isCreatingPermission }] = useCreatePermissionMutation();
   const [updatePermission, { isLoading: isUpdatingPermission }] = useUpdatePermissionMutation();
   const [deletePermission, { isLoading: isDeletingPermission }] = useDeletePermissionMutation();
   const { data: permissionsData, isLoading: isLoadingPermissions, isError: isErrorPermissions } = useGetAllPermissionsQuery();
   const { data: usersData, isLoading: isLoadingUsers, isError: isErrorUsers } = useGetAllUsersQuery("admin");
-
+  const { data: managementsData, isLoading: isLoadingManagements, isError: isErrorManagements } = useGetAllManagementsQuery();
+  const { data: managementsWithPermissionsData, isLoading: isLoadingManagementsWithPermissions, isError: isErrorManagementsWithPermissions, refetch: refetchManagementsWithPermissions } = useGetManagementsWithPermissionsQuery();
   // إدارة الأدوار
   const [roleForm, setRoleForm] = useState({
     name: "",
   });
-
-  // إدارة المستخدمين
-  const [userForm, setUserForm] = useState({
-    name: "",
-    email: "",
-    status: "active",
-    roles: [],
-    branch: ""
-  });
+ 
 
   const [roleFormErrors, setRoleFormErrors] = useState({});
   const [permissionFormErrors, setPermissionFormErrors] = useState({});
@@ -210,90 +204,6 @@ export default function RolesPermissions() {
     setEditingRole(null);
   };
 
-  // حفظ مستخدم جديد أو تعديل مستخدم موجود
-  const handleSaveUser = () => {
-    if (!userForm.name.trim() || !userForm.email.trim()) {
-      toast({
-        title: "خطأ في البيانات",
-        description: "يرجى إدخال جميع البيانات المطلوبة",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (editingUser) {
-      setUsers(prev => prev.map(user => 
-        user.id === editingUser.id 
-          ? { ...user, ...userForm }
-          : user
-      ));
-      
-      // تحديث عدد المستخدمين في الأدوار
-      updateRoleUserCounts();
-      
-      // إضافة سجل تدقيق
-      addAuditLog("تعديل مستخدم", editingUser.name, `تم تعديل بيانات المستخدم: ${userForm.name}`, "user");
-      
-      toast({
-        title: "تم التحديث",
-        description: "تم تحديث بيانات المستخدم بنجاح"
-      });
-    } else {
-      const newUser = {
-        id: `user_${Date.now()}`,
-        ...userForm,
-        lastLogin: "لم يسجل دخول بعد"
-      };
-      
-      setUsers(prev => [...prev, newUser]);
-      
-      // تحديث عدد المستخدمين في الأدوار
-      updateRoleUserCounts();
-      
-      // إضافة سجل تدقيق
-      addAuditLog("إنشاء مستخدم", newUser.name, `تم إنشاء مستخدم جديد: ${newUser.name}`, "user");
-      
-      toast({
-        title: "تم الإنشاء",
-        description: "تم إنشاء المستخدم بنجاح"
-      });
-    }
-
-    resetUserForm();
-    setIsUserDialogOpen(false);
-  };
-
-  // حذف مستخدم
-  const handleDeleteUser = (userId) => {
-    const user = users.find(u => u.id === userId);
-    if (!user) return;
-
-    setUsers(prev => prev.filter(u => u.id !== userId));
-    
-    // تحديث عدد المستخدمين في الأدوار
-    updateRoleUserCounts();
-    
-    // إضافة سجل تدقيق
-    addAuditLog("حذف مستخدم", user.name, `تم حذف المستخدم: ${user.name}`, "user");
-    
-    toast({
-      title: "تم الحذف",
-      description: "تم حذف المستخدم بنجاح"
-    });
-  };
-
-  // إعادة تعيين نموذج المستخدم
-  const resetUserForm = () => {
-    setUserForm({
-      name: "",
-      email: "",
-      status: "active",
-      roles: [],
-      branch: ""
-    });
-    setEditingUser(null);
-  };
-
   // تحديث عدد المستخدمين في كل دور
   const updateRoleUserCounts = () => {
     setRoles(prev => prev.map(role => ({
@@ -317,40 +227,7 @@ export default function RolesPermissions() {
     setAuditLogs(prev => [newLog, ...prev]);
   };
 
-  // تصدير البيانات
-  const handleExport = (type) => {
-    let data = [];
-    let filename = "";
-    
-    switch (type) {
-      case 'roles':
-        data = roles;
-        filename = "الأدوار";
-        break;
-      case 'users':
-        data = users;
-        filename = "المستخدمين";
-        break;
-      case 'permissions':
-        data = Object.entries(permissionsMatrix).map(([roleId, modules]) => ({
-          roleId,
-          roleName: roles.find(r => r.id === roleId)?.name,
-          permissions: modules
-        }));
-        filename = "الصلاحيات";
-        break;
-      case 'audit':
-        data = auditLogs;
-        filename = "سجل_التدقيق";
-        break;
-    }
-    
-    // في التطبيق الحقيقي، سيتم تصدير البيانات فعلياً
-    toast({
-      title: "تم التصدير",
-      description: `تم تصدير ${filename} بتنسيق Excel`
-    });
-  };
+
 
   // فلترة البيانات
   const filteredRoles = roles.filter(role => {
@@ -375,11 +252,73 @@ export default function RolesPermissions() {
   }, [users]);
 
   const [isPermissionDialogOpen, setIsPermissionDialogOpen] = useState(false);
-  const [permissionForm, setPermissionForm] = useState({ name: "", slug: "", groupBy: "" });
+  const [permissionForm, setPermissionForm] = useState({ name: "", slug: "", management_id: null });
+  const [managementSearchTerm, setManagementSearchTerm] = useState("");
+  const [isManagementDropdownOpen, setIsManagementDropdownOpen] = useState(false);
   const [permissions, setPermissions] = useState([]);
+  
+  // متغيرات لعرض تفاصيل الدور
+  const [selectedRoleForDetails, setSelectedRoleForDetails] = useState(null);
+  const [isRoleDetailsDialogOpen, setIsRoleDetailsDialogOpen] = useState(false);
+
+  // دالة عرض تفاصيل الدور
+  const handleViewRoleDetails = (role) => {
+    setSelectedRoleForDetails(role);
+    setIsRoleDetailsDialogOpen(true);
+  };
+
+  // دالة إعادة تعيين نموذج الصلاحية
+  const resetPermissionForm = () => {
+    setPermissionForm({ name: "", slug: "", management_id: null });
+    setManagementSearchTerm("");
+    setIsManagementDropdownOpen(false);
+    setPermissionFormErrors({});
+  };
+
+  // إغلاق قائمة الإدارات عند النقر خارجها
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isManagementDropdownOpen && !event.target.closest('.management-dropdown')) {
+        setIsManagementDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isManagementDropdownOpen]);
   // عند إنشاء أو تعديل صلاحية (Permission):
   const handleSavePermission = async () => {
     setPermissionFormErrors({});
+    
+    // تجميع جميع الأخطاء
+    const errors = {};
+    
+    // تحقق من اسم الصلاحية
+    if (!permissionForm.name.trim()) {
+      errors.name = "اسم الصلاحية مطلوب";
+    }
+    
+    // تحقق من الاسم المختصر
+    if (!permissionForm.slug.trim()) {
+      errors.slug = "الاسم المختصر مطلوب";
+    }
+    
+    // تحقق من الإدارة
+    if (!permissionForm.management_id || permissionForm.management_id === "" || isNaN(Number(permissionForm.management_id))) {
+      errors.management_id = "الإدارة مطلوبة";
+    }
+    
+    // إذا كان هناك أخطاء، اعرضها جميعاً
+    if (Object.keys(errors).length > 0) {
+      setPermissionFormErrors(errors);
+      toast({
+        title: "خطأ في البيانات",
+        description: "يرجى إدخال جميع البيانات المطلوبة",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // تحقق من uniqueness
     const isDuplicate = permissions.some(p => p.name.trim().toLowerCase() === permissionForm.name.trim().toLowerCase() && p.id !== permissionForm.id);
     if (isDuplicate) {
@@ -405,7 +344,7 @@ export default function RolesPermissions() {
       const body = {
         name: permissionForm.name,
         slug: permissionForm.slug,
-        groupBy: Number(permissionForm.groupBy)
+        management_id: Number(permissionForm.management_id)
       };
       if (permissionForm.id) {
         await updatePermission({ id: permissionForm.id, data: body }).unwrap();
@@ -414,7 +353,24 @@ export default function RolesPermissions() {
         await createPermission(body).unwrap();
         toast({ title: "تمت الإضافة", description: "تمت إضافة الصلاحية بنجاح" });
       }
-      setPermissionForm({ name: "", slug: "", groupBy: "" });
+      
+      // إعادة تحميل البيانات لتحديث الأقسام مع الصلاحيات
+      await refetchManagementsWithPermissions();
+      
+      // تحديث البيانات المحلية للصلاحيات
+      if (permissionForm.id) {
+        // تحديث صلاحية موجودة
+        setPermissions(prev => prev.map(perm => 
+          perm.id === permissionForm.id 
+            ? { ...perm, name: permissionForm.name, slug: permissionForm.slug, management_id: permissionForm.management_id }
+            : perm
+        ));
+      } else {
+        // إضافة صلاحية جديدة - سيتم تحديثها تلقائياً من API
+        // يمكن إضافة منطق إضافي هنا إذا لزم الأمر
+      }
+      
+      resetPermissionForm();
       setIsPermissionDialogOpen(false);
     } catch (err) {
       toast({ title: "خطأ في الحفظ", description: err?.data?.message || "حدث خطأ أثناء حفظ الصلاحية", variant: "destructive" });
@@ -426,7 +382,17 @@ export default function RolesPermissions() {
       console.log(permissionId)
       await deletePermission(permissionId).unwrap();
       toast({ title: "تم الحذف", description: "تم حذف الصلاحية بنجاح" });
+      
+      // تحديث البيانات المحلية
       setPermissions(prev => prev.filter(perm => perm.id !== permissionId));
+      
+      // إعادة تحميل البيانات لتحديث الأقسام مع الصلاحيات
+      await refetchManagementsWithPermissions();
+      
+      // إعادة تعيين الصلاحيات المختارة إذا كان الدور المختار يحتوي على الصلاحية المحذوفة
+      if (selectedRole) {
+        setSelectedPermissions(prev => prev.filter(id => id !== permissionId));
+      }
     } catch (err) {
       toast({ title: "خطأ في الحذف", description: err?.data?.message || "حدث خطأ أثناء حذف الصلاحية", variant: "destructive" });
     }
@@ -443,9 +409,9 @@ export default function RolesPermissions() {
       }
     });
   };
-  // تحديث selectedPermissions تلقائياً عند تغيير الدور المختار وبعد تحميل roles و permissions
+  // تحديث selectedPermissions تلقائياً عند تغيير الدور المختار وبعد تحميل roles و managementsWithPermissionsData
 useEffect(() => {
-  if (!selectedRole || !roles.length || !permissions.length) {
+  if (!selectedRole || !roles.length || !managementsWithPermissionsData?.length) {
     setSelectedPermissions([]);
     return;
   }
@@ -457,14 +423,20 @@ useEffect(() => {
     } else if (typeof role.Permissions[0] === 'string' || typeof role.Permissions[0] === 'number') {
       permNames = role.Permissions;
     }
-    const permIds = permissions
+    
+    // استخراج جميع الصلاحيات من managementsWithPermissionsData
+    const allPermissions = managementsWithPermissionsData.flatMap(management => 
+      management.Permissions || []
+    );
+    
+    const permIds = allPermissions
       .filter(perm => permNames.includes(perm.name) || permNames.includes(perm.id))
       .map(perm => perm.id);
     setSelectedPermissions(permIds);
   } else {
     setSelectedPermissions([]);
   }
-}, [selectedRole, roles, permissions]);
+}, [selectedRole, roles, managementsWithPermissionsData]);
 
   // عند حفظ الصلاحيات، أرسل فقط selectedPermissions
   // Spinner loading state for assign permissions
@@ -474,11 +446,24 @@ useEffect(() => {
   const handleAssignPermissionsToRole = async (e) => {
     e.preventDefault();
     setIsSavingPermissions(true);
-    const Permissions = permissions
+    
+    // استخراج جميع الصلاحيات من managementsWithPermissionsData
+    const allPermissions = managementsWithPermissionsData?.flatMap(management => 
+      management.Permissions || []
+    ) || [];
+    
+    const permissions = allPermissions
       .filter(perm => selectedPermissions.includes(perm.id))
       .map(perm => ({ [perm.name]: true }));
     try {
-      await assignPermissionsToRole({ id: selectedRole, permissions: { Permissions } }).unwrap();
+      // استخدام updateRole بدلاً من assignPermissionsToRole
+      await updateRole({ 
+        id: selectedRole, 
+        data: { 
+          permissions: permissions
+        } 
+      }).unwrap();
+      
       toast({ title: "تم الحفظ", description: "تم حفظ صلاحيات الدور بنجاح" });
     } catch (err) {
       toast({ title: "خطأ في الحفظ", description: err?.data?.message || "حدث خطأ أثناء حفظ الصلاحيات", variant: "destructive" });
@@ -487,9 +472,8 @@ useEffect(() => {
     }
   };
 
-  return (
-    console.log(users),
-    <TooltipProvider>
+      return (
+      <TooltipProvider>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -524,50 +508,70 @@ useEffect(() => {
                 <CardTitle>كل الأدوار</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm border border-gray-200 rounded-lg">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="text-right p-2 border-b">اسم الدور</th>
-                        <th className="text-right p-2 border-b">إجراءات</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {roles.map((role) => (
-                        <tr key={role.id} className="border-b hover:bg-gray-50">
-                          <td className="p-2">{role.name}</td>
-                          <td className="p-2 flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => { setRoleForm(role); setIsRoleDialogOpen(true);setEditingRole(role) }}>
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="destructive">
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    هل أنت متأكد أنك تريد حذف هذا الدور؟ لا يمكن التراجع عن هذا الإجراء.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteRole(role.id)} disabled={isDeletingRole}>
-                                    {isDeletingRole && <Spinner className="w-4 h-4 mr-2 inline-block" />}
-                                    نعم، احذف
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </td>
+                {roles.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <Shield className="w-16 h-16 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium text-muted-foreground">لا توجد أدوار</h3>
+                    <p className="text-sm text-muted-foreground mt-2">اضغط على زر "إضافة دور جديد" لبدء إنشاء الأدوار</p>
+          
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm border border-gray-200 rounded-lg">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="text-right p-2 border-b">ID</th>
+                          <th className="text-right p-2 border-b">اسم الدور</th>
+                          <th className="text-right p-2 border-b">إجراءات</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {roles.map((role) => (
+                          <tr key={role.id} className="border-b hover:bg-gray-50">
+                            <td className="p-2 text-gray-500 font-mono">{role.id}</td>
+                            <td className="p-2">{role.name}</td>
+                            <td className="p-2 flex gap-2">
+                             <Button 
+                               size="sm" 
+                               variant="outline" 
+                               onClick={() => handleViewRoleDetails(role)}
+                               className="hover:bg-blue-50 hover:text-blue-600"
+                               title="عرض التفاصيل"
+                             >
+                               <Eye className="w-4 h-4" />
+                             </Button>
+                             <Button size="sm" variant="outline" onClick={() => { setRoleForm(role); setIsRoleDialogOpen(true);setEditingRole(role) }}>
+                               <Edit className="w-4 h-4" />
+                             </Button>
+                             <AlertDialog>
+                               <AlertDialogTrigger asChild>
+                                 <Button size="sm" variant="destructive">
+                                   <Trash2 className="w-4 h-4" />
+                                 </Button>
+                               </AlertDialogTrigger>
+                               <AlertDialogContent>
+                                 <AlertDialogHeader>
+                                   <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
+                                   <AlertDialogDescription>
+                                     هل أنت متأكد أنك تريد حذف هذا الدور؟ لا يمكن التراجع عن هذا الإجراء.
+                                   </AlertDialogDescription>
+                                 </AlertDialogHeader>
+                                 <AlertDialogFooter>
+                                   <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                   <AlertDialogAction onClick={() => handleDeleteRole(role.id)} disabled={isDeletingRole}>
+                                     {isDeletingRole && <Spinner className="w-4 h-4 mr-2 inline-block" />}
+                                     نعم، احذف
+                                   </AlertDialogAction>
+                                 </AlertDialogFooter>
+                               </AlertDialogContent>
+                             </AlertDialog>
+                           </td>
+                         </tr>
+                       ))}
+                     </tbody>
+                   </table>
+                 </div>
+                )}
               </CardContent>
             </Card>
             {/* Dialog لإضافة/تعديل الدور */}
@@ -605,58 +609,84 @@ useEffect(() => {
                 <CardTitle>كل الصلاحيات</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm border border-gray-200 rounded-lg">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="text-right p-2 border-b">اسم الصلاحية</th>
-                        <th className="text-right p-2 border-b">الوصف</th>
-                        <th className="text-right p-2 border-b">التصنيف</th>
-                        <th className="text-right p-2 border-b">إجراءات</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {permissions.map((perm) => (
-                        <tr key={perm.id} className="border-b hover:bg-gray-50">
-                          <td className="p-2">{perm.name}</td>
-                          <td className="p-2">{perm.slug}</td>
-                          <td className="p-2">{perm.groupBy}</td>
-                          <td className="p-2 flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => { setPermissionForm(perm); setIsPermissionDialogOpen(true); }}>
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="destructive">
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    هل أنت متأكد أنك تريد حذف هذه الصلاحية؟ لا يمكن التراجع عن هذا الإجراء.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeletePermission(perm.id)} disabled={isDeletingPermission}>
-                                    {isDeletingPermission && <Spinner className="w-4 h-4 mr-2 inline-block" />}
-                                    نعم، احذف
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </td>
+                {permissions.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <Lock className="w-16 h-16 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium text-muted-foreground">لا توجد صلاحيات</h3>
+                    <p className="text-sm text-muted-foreground mt-2">اضغط على زر "إضافة صلاحية جديدة" لبدء إنشاء الصلاحيات</p>
+                  
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm border border-gray-200 rounded-lg">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="text-right p-2 border-b">اسم الصلاحية</th>
+                          <th className="text-right p-2 border-b">اسم مختصر</th>
+                          <th className="text-right p-2 border-b">الادارة</th>
+                          <th className="text-right p-2 border-b">إجراءات</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {permissions.map((perm) => (
+                          <tr key={perm.id} className="border-b hover:bg-gray-50">
+                            <td className="p-2">{perm.name}</td>
+                            <td className="p-2">{perm.slug}</td>
+                            <td className="p-2">{perm.Management.name}</td>
+                            <td className="p-2 flex gap-2">
+                              <Button size="sm" variant="outline" onClick={() => { 
+                                const managementId = perm.management_id || perm.Management?.id;
+                                const managementName = managementsData?.find(m => m.id == managementId)?.name || "";
+                                setPermissionForm({
+                                  id: perm.id,
+                                  name: perm.name,
+                                  slug: perm.slug,
+                                  management_id: Number(managementId)
+                                }); 
+                                setManagementSearchTerm(managementName);
+                                setIsPermissionDialogOpen(true); 
+                              }}>
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="destructive">
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      هل أنت متأكد أنك تريد حذف هذه الصلاحية؟ لا يمكن التراجع عن هذا الإجراء.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeletePermission(perm.id)} disabled={isDeletingPermission}>
+                                      {isDeletingPermission && <Spinner className="w-4 h-4 mr-2 inline-block" />}
+                                      نعم، احذف
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
             {/* Dialog لإضافة/تعديل الصلاحية */}
-            <Dialog open={isPermissionDialogOpen} onOpenChange={setIsPermissionDialogOpen}>
+            <Dialog open={isPermissionDialogOpen} onOpenChange={(open) => {
+              setIsPermissionDialogOpen(open);
+              if (!open) {
+                // إعادة تعيين النموذج عند الإغلاق
+                resetPermissionForm();
+              }
+            }}>
               <DialogContent className="max-w-md">
                 <DialogHeader>
                   <DialogTitle>{permissionForm.id ? "تعديل الصلاحية" : "إضافة صلاحية جديدة"}</DialogTitle>
@@ -668,72 +698,195 @@ useEffect(() => {
                     {permissionFormErrors.name && <div className="text-red-600 text-xs mt-1">{permissionFormErrors.name}</div>}
                   </div>
                   <div>
-                    <Label htmlFor="permSlug">الوصف</Label>
+                    <Label htmlFor="permSlug">اسم مختصر</Label>
                     <Input id="permSlug" value={permissionForm.slug} onChange={e => setPermissionForm(prev => ({ ...prev, slug: e.target.value }))} className="mt-1" />
                     {permissionFormErrors.slug && <div className="text-red-600 text-xs mt-1">{permissionFormErrors.slug}</div>}
                   </div>
                   <div>
-                    <Label htmlFor="permGroup">تصنيف حسب</Label>
-                    <Input id="permGroup" value={permissionForm.groupBy} onChange={e => setPermissionForm(prev => ({ ...prev, groupBy: e.target.value }))} className="mt-1" />
-                    {permissionFormErrors.groupBy && <div className="text-red-600 text-xs mt-1">{permissionFormErrors.groupBy}</div>}
+                    <Label htmlFor="permManagement">الادارة</Label>
+                    <div className="relative management-dropdown">
+                      <Input
+                        placeholder="ابحث واختر الإدارة..."
+                        value={managementSearchTerm}
+                        onChange={(e) => setManagementSearchTerm(e.target.value)}
+                        onFocus={() => setIsManagementDropdownOpen(true)}
+                        className="mt-1"
+                      />
+                      {isManagementDropdownOpen && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                          {isLoadingManagements ? (
+                            <div className="flex items-center justify-center p-4">
+                              <Spinner className="w-4 h-4 mr-2" />
+                              جاري التحميل...
+                            </div>
+                          ) : managementsData?.length > 0 ? (
+                            managementsData
+                              .filter(management => 
+                                management.name.toLowerCase().includes(managementSearchTerm.toLowerCase())
+                              )
+                              .map((management) => (
+                                <div
+                                  key={management.id}
+                                  className={`p-3 cursor-pointer hover:bg-gray-100 border-b last:border-b-0 ${
+                                    permissionForm.management_id == management.id ? 'bg-blue-50 text-blue-600' : ''
+                                  }`}
+                                                                     onClick={() => {
+                                     setPermissionForm(prev => ({ ...prev, management_id: Number(management.id) }));
+                                     setManagementSearchTerm(management.name);
+                                     setIsManagementDropdownOpen(false);
+                                   }}
+                                >
+                                  {management.name}
+                                </div>
+                              ))
+                          ) : (
+                            <div className="p-4 text-center text-muted-foreground">
+                              لا توجد إدارات متاحة
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {permissionForm.management_id && managementsData && (
+                        <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
+                          <span className="font-medium">الإدارة المختارة:</span> {managementsData.find(m => m.id == permissionForm.management_id)?.name}
+                        </div>
+                      )}
+                    </div>
+                    {permissionFormErrors.management_id && <div className="text-red-600 text-xs mt-1">{permissionFormErrors.management_id}</div>}
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsPermissionDialogOpen(false)}>إلغاء</Button>
-                  <Button onClick={handleSavePermission} disabled={isCreatingPermission || isUpdatingPermission}>
-                    {(isCreatingPermission || isUpdatingPermission) && <Spinner className="w-4 h-4 mr-2 inline-block" />}
-                    حفظ
-                  </Button>
-                </DialogFooter>
+                                 <DialogFooter>
+                   <Button variant="outline" onClick={() => {
+                     resetPermissionForm();
+                     setIsPermissionDialogOpen(false);
+                   }}>إلغاء</Button>
+                   <Button onClick={handleSavePermission} disabled={isCreatingPermission || isUpdatingPermission}>
+                     {(isCreatingPermission || isUpdatingPermission) && <Spinner className="w-4 h-4 mr-2 inline-block" />}
+                     حفظ
+                   </Button>
+                 </DialogFooter>
               </DialogContent>
             </Dialog>
           </TabsContent>
 
-          {/* Tab: ربط الأدوار بالصلاحيات */}
+                    {/* Tab: ربط الأدوار بالصلاحيات */}
           <TabsContent value="assign-role-perm">
             <Card className="shadow-card">
               <CardHeader>
                 <CardTitle>ربط الدور بالصلاحيات</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="mb-6">
-                  <Label>اختيار الدور</Label>
-                  <Select value={selectedRole} onValueChange={setSelectedRole}>
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="اختر الدور..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {roles.map((role) => (
-                        <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {selectedRole && (() => {
-                  const currentRole = roles.find(r => r.id === selectedRole);
-                  const currentRolePermissions = currentRole?.Permissions?.map(p => p.name) || [];
-                  return (
-                    <form onSubmit={handleAssignPermissionsToRole} className="space-y-4">
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                        {permissions.map((perm) => (
-                          <div key={perm.id} className="flex items-center gap-2">
-                            <Checkbox
-                              checked={selectedPermissions.includes(perm.id)}
-                              onCheckedChange={checked => handlePermissionCheckboxChange(perm.id, checked)}
-                            />
-                            <span className={selectedPermissions.includes(perm.id) ? 'text-green-600 font-bold' : ''}>{perm.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <DialogFooter className="mt-4">
-                        <Button type="submit" disabled={isSavingPermissions}>
-                          {isSavingPermissions && <Spinner className="w-4 h-4 mr-2 inline-block" />}
-                          حفظ الصلاحيات للدور
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  );
-                })()}
+                {/* فحص وجود أدوار */}
+                {roles.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <Shield className="w-16 h-16 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium text-muted-foreground">لا توجد أدوار</h3>
+                    <p className="text-sm text-muted-foreground mt-2 text-center">
+                      يجب إنشاء أدوار أولاً قبل ربطها بالصلاحيات
+                    </p>
+                 
+                  </div>
+                ) :permissions.length === 0 ?  (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <Lock className="w-16 h-16 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium text-muted-foreground">لا توجد صلاحيات</h3>
+                    <p className="text-sm text-muted-foreground mt-2">اضغط على زر "إضافة صلاحية جديدة" لبدء إنشاء الصلاحيات</p>
+                  
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-6">
+                      <Label>اختيار الدور</Label>
+                      <Select value={selectedRole} onValueChange={setSelectedRole}>
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="اختر الدور..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {selectedRole && (() => {
+                      const currentRole = roles.find(r => r.id === selectedRole);
+                      const currentRolePermissions = currentRole?.Permissions?.map(p => p.name) || [];
+                      return (
+                        <form onSubmit={handleAssignPermissionsToRole} className="space-y-4">
+                          {isLoadingManagementsWithPermissions ? (
+                            <div className="flex items-center justify-center p-8">
+                              <Spinner className="w-6 h-6 mr-2" />
+                              جاري تحميل الصلاحيات...
+                            </div>
+                          ) : managementsWithPermissionsData && managementsWithPermissionsData.length > 0 ? (
+                            <div>
+                              {/* عناوين الأعمدة */}
+                              <div className="flex items-center gap-6 mb-4 p-3 bg-gray-50 rounded-lg">
+                                <div className="text-right min-w-[150px]">
+                                  <h3 className="font-semibold text-gray-700">الإدارة</h3>
+                                </div>
+                                <div className="flex-1">
+                                  <h3 className="font-semibold text-gray-700">الصلاحيات</h3>
+                                </div>
+                              </div>
+                              
+                              {/* عرض الإدارات مع صلاحياتها */}
+                              <div className="space-y-4">
+                                {managementsWithPermissionsData
+                                  .filter(management => management.Permissions && management.Permissions.length > 0)
+                                  .map((management) => (
+                                    <div key={management.id} className="flex items-start gap-6 hover:bg-gray-50 p-3 rounded-lg">
+                                      <div className="flex items-center gap-2 text-right min-w-[150px]">
+                                        <Package className="w-4 h-4 text-primary" />
+                                        <span className="font-medium text-primary">{management.name}</span>
+                                      </div>
+                                      <div className="flex-1">
+                                        <div className="flex flex-wrap gap-4">
+                                          {management.Permissions.map((perm) => (
+                                            <div key={perm.id} className="flex items-center gap-2">
+                                              <Checkbox
+                                                checked={selectedPermissions.includes(perm.id)}
+                                                onCheckedChange={checked => handlePermissionCheckboxChange(perm.id, checked)}
+                                              />
+                                              <span className={`text-sm font-medium ${selectedPermissions.includes(perm.id) ? 'text-green-600' : 'text-gray-700'}`}>
+                                                {perm.name}
+                                              </span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center justify-center py-12">
+                              <Lock className="w-16 h-16 text-muted-foreground mb-4" />
+                              <h3 className="text-lg font-medium text-muted-foreground">لا توجد صلاحيات</h3>
+                              <p className="text-sm text-muted-foreground mt-2 text-center">
+                                يجب إنشاء صلاحيات أولاً قبل ربطها بالأدوار
+                              </p>
+                              <Button 
+                                onClick={() => setActiveTab("permissions")}
+                                className="mt-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                              >
+                                <Lock className="w-4 h-4 mr-2" />
+                                إنشاء صلاحية جديدة
+                              </Button>
+                            </div>
+                          )}
+                          <DialogFooter className="mt-6">
+                            <Button type="submit" disabled={isSavingPermissions || !managementsWithPermissionsData?.length}>
+                              {isSavingPermissions && <Spinner className="w-4 h-4 mr-2 inline-block" />}
+                              حفظ الصلاحيات للدور
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      );
+                    })()}
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -745,53 +898,67 @@ useEffect(() => {
                 <CardTitle>ربط المستخدمين بالأدوار</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="mb-6">
-                  <Label>اختيار المستخدم</Label>
-                  <Select value={editingUser?.id} onValueChange={id => setEditingUser(users.find(u => u.id === id))}>
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="اختر المستخدم..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {users?.map((user) => (
-                        <SelectItem key={user.id} value={user.id}>{user.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {editingUser && (
-                  <div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
-                      {roles.map((role) => (
-                        <div key={role.id} className="flex items-center gap-2">
-                          <Checkbox
-                            className="custom-checkbox-primary"
-                            checked={editingUser.role_id === role.id}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setEditingUser(prev => ({ ...prev, role_id: role.id }));
-                                setUsers(prev => prev.map(user =>
-                                  user.id === editingUser.id
-                                    ? { ...user, role_id: role.id }
-                                    : user
-                                ));
-                              } else {
-                                setEditingUser(prev => ({ ...prev, role_id: null }));
-                                setUsers(prev => prev.map(user =>
-                                  user.id === editingUser.id
-                                    ? { ...user, role_id: null }
-                                    : user
-                                ));
-                              }
-                              updateRoleUserCounts();
-                              addAuditLog("تعديل دور مستخدم", editingUser.name, `تم تعديل دور المستخدم: ${role.name}`, "user");
-                            }}
-                          />
-                          <span>{role.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <AssignUserRoleButton editingUser={editingUser} roles={roles} />
+                {/* فحص وجود أدوار */}
+                {roles.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <Shield className="w-16 h-16 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium text-muted-foreground">لا توجد أدوار</h3>
+                    <p className="text-sm text-muted-foreground mt-2 text-center">
+                      يجب إنشاء أدوار أولاً قبل ربط المستخدمين بها
+                    </p>
+                   
                   </div>
+                ) : (
+                  <>
+                    <div className="mb-6">
+                      <Label>اختيار المستخدم</Label>
+                      <Select value={editingUser?.id} onValueChange={id => setEditingUser(users.find(u => u.id === id))}>
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="اختر المستخدم..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {users?.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>{user.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {editingUser && (
+                      <div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
+                          {roles.map((role) => (
+                            <div key={role.id} className="flex items-center gap-2">
+                              <Checkbox
+                                className="custom-checkbox-primary"
+                                checked={editingUser.role_id === role.id}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setEditingUser(prev => ({ ...prev, role_id: role.id }));
+                                    setUsers(prev => prev.map(user =>
+                                      user.id === editingUser.id
+                                        ? { ...user, role_id: role.id }
+                                        : user
+                                    ));
+                                  } else {
+                                    setEditingUser(prev => ({ ...prev, role_id: null }));
+                                    setUsers(prev => prev.map(user =>
+                                      user.id === editingUser.id
+                                        ? { ...user, role_id: null }
+                                        : user
+                                    ));
+                                  }
+                                  updateRoleUserCounts();
+                                  addAuditLog("تعديل دور مستخدم", editingUser.name, `تم تعديل دور المستخدم: ${role.name}`, "user");
+                                }}
+                              />
+                              <span>{role.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <AssignUserRoleButton editingUser={editingUser} roles={roles} />
+                      </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -833,6 +1000,96 @@ useEffect(() => {
        
         </div>
       </div>
+
+      {/* Dialog لعرض تفاصيل الدور */}
+      {selectedRoleForDetails && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-primary flex items-center gap-3">
+                <Shield className="w-8 h-8" />
+                تفاصيل الدور: {selectedRoleForDetails.name}
+              </h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSelectedRoleForDetails(null);
+                  setIsRoleDetailsDialogOpen(false);
+                }}
+                className="hover:bg-muted/50 w-10 h-10"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+            
+            <div className="space-y-8">
+              {/* معلومات أساسية للدور */}
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-gray-800 border-b-2 border-primary/20 pb-3">معلومات الدور الأساسية</h3>
+                
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600 block mb-2">معرف الدور</Label>
+                    <p className="text-lg text-gray-900 font-medium bg-gray-50 p-3 rounded-lg">{selectedRoleForDetails.id}</p>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600 block mb-2">اسم الدور</Label>
+                    <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedRoleForDetails.name}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* الصلاحيات المرتبطة بالدور */}
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-gray-800 border-b-2 border-primary/20 pb-3">الصلاحيات المرتبطة</h3>
+                
+                {selectedRoleForDetails.Permissions && selectedRoleForDetails.Permissions.length > 0 ? (
+                  <div className="space-y-3">
+                    {selectedRoleForDetails.Permissions.map((permission, index) => (
+                      <div key={index} className="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <div className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-600" />
+                          <span className="font-medium text-green-800">
+                            {typeof permission === 'object' ? permission.name : permission}
+                          </span>
+                        </div>
+                        {typeof permission === 'object' && permission.Management && (
+                          <p className="text-sm text-green-600 mt-1">
+                            الإدارة: {permission.Management.name}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h4 className="text-lg font-medium text-gray-600 mb-2">لا توجد صلاحيات مرتبطة</h4>
+                    <p className="text-sm text-gray-500">هذا الدور لا يحتوي على أي صلاحيات حالياً</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+
+            
+            <div className="flex justify-center mt-8 pt-8 border-t border-gray-200">
+              <Button
+                onClick={() => {
+                  setSelectedRoleForDetails(null);
+                  setIsRoleDetailsDialogOpen(false);
+                }}
+                className="bg-primary hover:bg-primary/90 px-8 py-3 text-lg"
+              >
+                إغلاق
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {(isLoadingRoles || isLoadingPermissions || isLoadingUsers) && (
   <div className="fixed inset-0 flex items-center justify-center bg-white/70 z-50">
     <Spinner className="w-12 h-12 text-green-600" />
