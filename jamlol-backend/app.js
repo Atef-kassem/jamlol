@@ -21,6 +21,8 @@ const managementRouter = require("./routes/ManagementRoutes/managementRoutes");
 const countryRouter = require("./routes/GeoLocationRoutes/countryRoutes");
 const cityRouter = require("./routes/GeoLocationRoutes/cityRoutes");
 const regionRouter = require("./routes/GeoLocationRoutes/regionRoutes");
+const supplierRouter = require("./routes/SupplierRoutes/supplierRoutes");
+const naqlenRouter = require("./routes/NaqlenRoutes/naqlenRoutes");
 
 const cors = require("cors");
 // ! start express app & connect to db
@@ -70,7 +72,7 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // ! Query Passer
 app.set("query parser", "extended"); //  to configure how query strings in incoming HTTP requests are parsed
 
@@ -89,6 +91,8 @@ app.use("/api/v1/management", managementRouter);
 app.use("/api/v1/countries", countryRouter);
 app.use("/api/v1/cities", cityRouter);
 app.use("/api/v1/regions", regionRouter);
+app.use("/api/v1/suppliers", supplierRouter);
+app.use("/api/v1/naqlens", naqlenRouter);
 // ! handling unhandled routes
 const server = app.use((req, res, next) => {
   next(new appError(`Can't find ${req.originalUrl} on this server!`, 404));
