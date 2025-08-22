@@ -8,6 +8,7 @@ const Country = require("./GeoLocationModels/countryModel");
 const City = require("./GeoLocationModels/cityModel");
 const Region = require("./GeoLocationModels/regionModel");
 const AppInfo = require("./appInfoModel");
+const Client = require("./ClientsModels/clientModel");
 const Supplier = require("./SupplierModels/supplierModel");
 const Naqlen = require("./NaqlenModels/naqlenModel");
 
@@ -35,6 +36,10 @@ City.belongsTo(Country, { foreignKey: "country_id" });
 City.hasMany(Region, { foreignKey: "city_id" });
 Region.belongsTo(City, { foreignKey: "city_id" });
 
+//Region to Client (One-to-Many)
+Region.hasMany(Client, { foreignKey: "region_id" });
+Client.belongsTo(Region, { foreignKey: "region_id" });
+
 //Region to Supplier (One-to-Many)
 Region.hasMany(Supplier, { foreignKey: "region_id" });
 Supplier.belongsTo(Region, { foreignKey: "region_id" });
@@ -54,5 +59,6 @@ module.exports = {
   Management,
   AppInfo,
   Supplier,
+  Client,
   Naqlen,
 };

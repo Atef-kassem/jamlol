@@ -22,6 +22,7 @@ const countryRouter = require("./routes/GeoLocationRoutes/countryRoutes");
 const cityRouter = require("./routes/GeoLocationRoutes/cityRoutes");
 const regionRouter = require("./routes/GeoLocationRoutes/regionRoutes");
 const supplierRouter = require("./routes/SupplierRoutes/supplierRoutes");
+const clientRouter = require("./routes/ClientRoutes/clientRoutes");
 const naqlenRouter = require("./routes/NaqlenRoutes/naqlenRoutes");
 
 const cors = require("cors");
@@ -92,6 +93,7 @@ app.use("/api/v1/countries", countryRouter);
 app.use("/api/v1/cities", cityRouter);
 app.use("/api/v1/regions", regionRouter);
 app.use("/api/v1/suppliers", supplierRouter);
+app.use("/api/v1/clients", clientRouter);
 app.use("/api/v1/naqlens", naqlenRouter);
 // ! handling unhandled routes
 const server = app.use((req, res, next) => {
