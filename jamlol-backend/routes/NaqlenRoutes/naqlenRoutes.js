@@ -1,27 +1,15 @@
 const Router = require("express").Router();
-const {
-  createNaqlen,
-  getAllNaqlens,
-  getNaqlenById,
-  updateNaqlen,
-  deleteNaqlen,
-  getNaqlensByRegion,
-  getNaqlensWithFilters,
-} = require("../../controllers/Naqlen/naqlenController");
+const { createNaqel,updateNaqel, deleteNaqel, getNaqelById, getAllNaqels } = require("../../controllers/Naqel/naqelController");
 const { naqlenValidation, updateNaqlenValidation } = require("../../validators/NaqlenValidations/insertedData");
 const { insertedErrors } = require("../../validators/validationResult");
 
 // Basic CRUD operations
-Router.route("/").post(naqlenValidation, insertedErrors, createNaqlen).get(getNaqlensWithFilters);
-
-Router.route("/all").get(getAllNaqlens);
+Router.route("/").post(naqlenValidation, insertedErrors, createNaqel).get(getAllNaqels);
 
 Router.route("/:id")
-  .get(getNaqlenById)
-  .patch(updateNaqlenValidation, insertedErrors, updateNaqlen)
-  .delete(deleteNaqlen);
+  .get(getNaqelById)
+  .patch(updateNaqlenValidation, insertedErrors, updateNaqel)
+  .delete(deleteNaqel);
 
-// Get naqlens by region
-Router.route("/region/:regionId").get(getNaqlensByRegion);
 
 module.exports = Router;

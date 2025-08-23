@@ -24,6 +24,9 @@ const regionRouter = require("./routes/GeoLocationRoutes/regionRoutes");
 const supplierRouter = require("./routes/SupplierRoutes/supplierRoutes");
 const clientRouter = require("./routes/ClientRoutes/clientRoutes");
 const naqlenRouter = require("./routes/NaqlenRoutes/naqlenRoutes");
+const driverRouter = require("./routes/NaqlenRoutes/driverRoutes");
+const carRouter = require("./routes/NaqlenRoutes/carRoutes");
+const modelRouter = require("./routes/NaqlenRoutes/modelRoutes");
 
 const cors = require("cors");
 // ! start express app & connect to db
@@ -95,6 +98,9 @@ app.use("/api/v1/regions", regionRouter);
 app.use("/api/v1/suppliers", supplierRouter);
 app.use("/api/v1/clients", clientRouter);
 app.use("/api/v1/naqlens", naqlenRouter);
+app.use("/api/v1/drivers", driverRouter);
+app.use("/api/v1/cars", carRouter);
+app.use("/api/v1/models", modelRouter);
 // ! handling unhandled routes
 const server = app.use((req, res, next) => {
   next(new appError(`Can't find ${req.originalUrl} on this server!`, 404));

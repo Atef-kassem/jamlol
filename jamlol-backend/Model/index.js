@@ -10,7 +10,11 @@ const Region = require("./GeoLocationModels/regionModel");
 const AppInfo = require("./appInfoModel");
 const Client = require("./ClientsModels/clientModel");
 const Supplier = require("./SupplierModels/supplierModel");
-const Naqlen = require("./NaqlenModels/naqlenModel");
+const Naqel = require("./NaqelModels/naqelModel");
+const Car = require("./NaqelModels/carModel");
+const Driver = require("./NaqelModels/driverModel");
+const Model = require("./NaqelModels/modelModel");
+const NaqelRegion = require("./NaqelModels/naqelRegionsModel");
 
 // Users to Roles (One-to-Many)
 User.belongsTo(Role, { foreignKey: "role_id" });
@@ -44,9 +48,26 @@ Client.belongsTo(Region, { foreignKey: "region_id" });
 Region.hasMany(Supplier, { foreignKey: "region_id" });
 Supplier.belongsTo(Region, { foreignKey: "region_id" });
 
-//Region to Naqlen (One-to-Many)
-Region.hasMany(Naqlen, { foreignKey: "region_id" });
-Naqlen.belongsTo(Region, { foreignKey: "region_id" });
+//Region to Naqel (Many-to-Many)
+Region.belongsToMany(Naqel, { through: NaqelRegion, foreignKey: "region_id"});
+Naqel.belongsToMany(Region, { through: NaqelRegion, foreignKey: "naqel_id"});
+NaqelRegion.belongsTo(Naqel, { foreignKey: "naqel_id" });
+NaqelRegion.belongsTo(Region, { foreignKey: "region_id" });
+Naqel.hasMany(NaqelRegion, { foreignKey: "naqel_id" });
+Region.hasMany(NaqelRegion, { foreignKey: "region_id" });
+
+
+  Naqel.hasMany(Driver, { foreignKey: "naqel_id" });
+  Driver.belongsTo(Naqel, { foreignKey: "naqel_id" });
+
+Naqel.hasMany(Car, { foreignKey: "naqel_id" });
+Car.belongsTo(Naqel, { foreignKey: "naqel_id" });
+
+Driver.hasOne(Car, { foreignKey: "driver_id" });
+Car.belongsTo(Driver, { foreignKey: "driver_id" });
+
+Car.belongsTo(Model, { foreignKey: "model_id" });
+Model.hasOne(Car, { foreignKey: "model_id" });
 
 module.exports = {
   User,
@@ -60,5 +81,9 @@ module.exports = {
   AppInfo,
   Supplier,
   Client,
-  Naqlen,
+  Naqel,
+  NaqelRegion,
+  Car,
+  Driver,
+  Model,
 };

@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../../Config/dbConfig");
 
-const Naqlen = sequelize.define(
-  "Naqlen",
+const Naqel = sequelize.define(
+  "Naqel",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -18,38 +18,33 @@ const Naqlen = sequelize.define(
       type: DataTypes.ENUM("person", "company"),
       allowNull: false,
     },
-    card_number: {
-      type: DataTypes.INTEGER,
+    identification_number: {
+      type: DataTypes.STRING, 
+      allowNull: false,
     },
-    sgl_number: {
-      type: DataTypes.INTEGER,
+    identification_type: {
+      type: DataTypes.ENUM("card", "sgl"),
+      allowNull: false,
     },
     jwal: {
       type: DataTypes.STRING,
       unique: true,
+      allowNull: false,
     },
     address: {
       type: DataTypes.STRING,
-    },
-    region_id: {
-      type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "tbl_region",
-        key: "id",
-      },
     },
     active: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.ENUM("active", "inactive"),
       allowNull: false,
-      defaultValue: true,
+      defaultValue: "inactive",
     },
   },
-
   {
     timestamps: true,
-    tableName: "tbl_naqlen",
+    tableName: "tbl_naqel",
   }
 );
 
-module.exports = Naqlen;
+module.exports = Naqel;

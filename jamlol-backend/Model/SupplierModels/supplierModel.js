@@ -27,6 +27,7 @@ const Supplier = sequelize.define(
     jwal: {
       type: DataTypes.STRING,
       unique: true,
+      allowNull: false,
     },
     address: {
       type: DataTypes.STRING,

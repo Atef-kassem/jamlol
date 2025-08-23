@@ -6,14 +6,14 @@ const naqlenSchema = {
   properties: {
     name: { type: "string" },
     naqlen_type: { type: "string", enum: ["person", "company"] },
-    card_number: { type: "integer" },
-    sgl_number: { type: "integer" },
+    identification_number: { type: "string" },
+    identification_type: { type: "string", enum: ["card", "sgl"] },
     jwal: { type: "string", pattern: "^(\\+?\\d{1,3}[-.\\s]?)?\\d{7,15}$", minLength: 7, maxLength: 15 },
     address: { type: "string" },
-    region_id: { type: "integer" },
-    active: { type: "boolean" },
+    active: { type: "string", enum: ["active", "inactive"]},
+    regions: { type: "array", items: { type: "number" } ,minItems: 1},
   },
-  required: ["name", "naqlen_type", "region_id"],
+  required: ["name", "naqlen_type", "identification_number","regions","jwal","address"],
   additionalProperties: false,
 };
 ajv.compile(naqlenSchema);
