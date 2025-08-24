@@ -10,10 +10,7 @@ import TransportDashboard from "@/pages/TransportDashboard";
 import UserProfile from "@/pages/UserProfile";
 import UserSettings from "@/pages/UserSettings";
 import CompanySettings from "@/pages/Settings/CompanySettings";
-import BranchSettings from "@/pages/Settings/BranchSettings";
 import UsersSettings from "@/pages/Settings/UsersSettings";
-import ThemeSettings from "@/pages/Settings/ThemeSettings";
-import TransportSettings from "@/pages/Settings/TransportSettings";
 import RolesPermissions from "@/pages/Settings/RolesPermissions";
 import ManagementSettings from "@/pages/Settings/ManagementSettings";
 import AddSupplier from "@/pages/Suppliers/AddSupplier";
@@ -29,11 +26,9 @@ import PurchaseHistory from "@/pages/Clients/PurchaseHistory";
 import ClientEvaluation from "@/pages/Clients/ClientEvaluation";
 import ClientReports from "@/pages/Clients/ClientReports";
 import CarriersList from "@/pages/Carriers/CarriersList";
-import CarrierRegistration from "@/pages/Carriers/CarrierRegistration";
 import CarrierVehicles from "@/pages/Carriers/CarrierVehicles";
 import CarrierPricing from "@/pages/Carriers/CarrierPricing";
-import CarrierEvaluation from "@/pages/Carriers/CarrierEvaluation";
-import CarrierCoverage from "@/pages/Carriers/CarrierCoverage";
+import DriversList from "@/pages/Carriers/DriversList";
 import CarrierReports from "@/pages/Carriers/CarrierReports";
 import OrdersList from "@/pages/Orders/OrdersList";
 import ProductsList from "@/pages/Products/ProductsList";
@@ -46,8 +41,8 @@ import ReportsDashboard from "@/pages/Reports/ReportsDashboard";
 import SalesReports from "@/pages/Reports/SalesReports";
 import FinancialReports from "@/pages/Reports/FinancialReports";
 import ReportsSettings from "@/pages/Reports/ReportsSettings";
-import { TransportProvider } from "../contexts/TransportContext";
 import { AddressProvider } from '../contexts/AddressContext';
+import { TransportProvider } from '../contexts/TransportContext';
 import GeolocationSettings from "../pages/Settings/GeoLocationSettings";
 
 export default function MainLayout() {
@@ -62,23 +57,17 @@ export default function MainLayout() {
               <Route index element={<TransportDashboard />} />
               <Route path="profile" element={<UserProfile />} />
               <Route path="user-settings" element={<UserSettings />} />
-              <Route path="settings/company" element={
-                <AddressProvider>
-                <CompanySettings />
-                </AddressProvider>} />
-              <Route path="settings/branches" element={<BranchSettings />} />
-              <Route path="settings/users" element={<UsersSettings />} />
-              <Route path="settings/roles" element={<RolesPermissions />} />
-              <Route path="settings/managements" element={<ManagementSettings />} />
-              <Route path="settings/themes" element={<ThemeSettings />} />
-              <Route path="settings/geolocation" element={ 
-              <AddressProvider>
-              <GeolocationSettings />
-              </AddressProvider>} />
-              <Route path="settings/transport" element={<TransportProvider>
-                <TransportSettings />
-              </TransportProvider>
-              } />
+                             <Route path="settings/company" element={
+                 <AddressProvider>
+                 <CompanySettings />
+                 </AddressProvider>} />
+               <Route path="settings/managements" element={<ManagementSettings />} />
+               <Route path="settings/users" element={<UsersSettings />} />
+               <Route path="settings/roles" element={<RolesPermissions />} />
+               <Route path="settings/geolocation" element={ 
+               <AddressProvider>
+               <GeolocationSettings />
+               </AddressProvider>} />
               <Route path="suppliers/add" element={
                 <AddressProvider>
                   <AddSupplier />
@@ -97,18 +86,11 @@ export default function MainLayout() {
               <Route path="clients/purchase-history" element={<PurchaseHistory />} />
               <Route path="clients/reports" element={<ClientReports />} />
               <Route path="clients/evaluation" element={<ClientEvaluation />} />
+              <Route path="carriers" element={<CarriersList />} />
               <Route path="carriers/list" element={<CarriersList />} />
-              <Route path="carriers/registration" element={<CarrierRegistration />} />
-              <Route path="carriers/vehicles" element={
-                <TransportProvider>
-                <CarrierVehicles />
-                </TransportProvider>} />
+                             <Route path="carriers/vehicles" element={<TransportProvider><CarrierVehicles /></TransportProvider>} />
               <Route path="carriers/pricing" element={<CarrierPricing />} />
-              <Route path="carriers/evaluation" element={<CarrierEvaluation />} />
-              <Route path="carriers/coverage" element={
-                <AddressProvider>
-                  <CarrierCoverage />
-                  </AddressProvider>} />
+              <Route path="carriers/drivers" element={<DriversList />} />
               <Route path="carriers/reports" element={<CarrierReports />} />
               <Route path="orders/pending" element={<OrdersList />} />
               <Route path="orders/processing" element={<OrdersList />} />

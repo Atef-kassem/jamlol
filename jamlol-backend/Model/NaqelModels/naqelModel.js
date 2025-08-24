@@ -21,6 +21,7 @@ const Naqel = sequelize.define(
     identification_number: {
       type: DataTypes.STRING, 
       allowNull: false,
+      unique: true,
     },
     identification_type: {
       type: DataTypes.ENUM("card", "sgl"),

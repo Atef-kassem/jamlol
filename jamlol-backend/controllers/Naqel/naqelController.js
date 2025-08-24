@@ -52,9 +52,7 @@ exports.createNaqel = catchAsync(async (req, res, next) => {
 
     res.status(201).json({
       status: "success",
-      data: {
         naqel: naqelWithRegions,
-      },
     });
   } catch (error) {
     // Rollback transaction on error
@@ -96,9 +94,7 @@ exports.getAllNaqels = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    data: {
       naqleen,
-    },
   });
 });
 
@@ -123,9 +119,7 @@ exports.getNaqelById = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    data: {
       naqel: naqelWithRegions,
-    },
   });
 });
 
@@ -188,9 +182,7 @@ exports.updateNaqel = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
       status: "success",
-      data: {
         naqel: naqelWithRegions,
-      },
     });
   } catch (error) {
     // Rollback transaction on error
