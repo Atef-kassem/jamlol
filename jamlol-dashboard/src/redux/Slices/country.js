@@ -12,33 +12,21 @@ export const countryApi = jamlolApi.injectEndpoints({
       providesTags: ['Countries'],
     }),
     createCountry: builder.mutation({
-      query: (data) => {
-        console.log("Sending country creation request with data:", data);
-        return {
-          url: '/countries',
-          method: 'POST',
-          body: data,
-        };
-      },
-      transformResponse: (response) => {
-        console.log("Raw API response:", response);
-        return response.country || response;
-      },
+      query: (data) => ({
+        url: '/countries',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: (response) => response.country,
       invalidatesTags: ['Countries'],
     }),
     updateCountry: builder.mutation({
-      query: ({id, data}) => {
-        console.log("Sending country update request:", { id, data });
-        return {
-          url: `/countries/${id}`,
-          method: 'PATCH',
-          body: data,
-        };
-      },
-      transformResponse: (response) => {
-        console.log("Country update response:", response);
-        return response.country || response;
-      },
+      query: ({id, data}) => ({
+        url: `/countries/${id}`,
+        method: 'PATCH',
+        body: data,
+      }),
+      transformResponse: (response) => response.country,
       invalidatesTags: ['Countries'],
     }),
     deleteCountry: builder.mutation({

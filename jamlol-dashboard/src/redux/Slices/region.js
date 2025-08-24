@@ -12,33 +12,21 @@ export const regionApi = jamlolApi.injectEndpoints({
       providesTags: ['Regions'],
     }),
     createRegion: builder.mutation({
-      query: (data) => {
-        console.log("Sending region creation request with data:", data);
-        return {
-          url: '/regions',
-          method: 'POST',
-          body: data,
-        };
-      },
-      transformResponse: (response) => {
-        console.log("Raw region API response:", response);
-        return response.region || response;
-      },
+      query: (data) => ({
+        url: '/regions',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: (response) => response.country,
       invalidatesTags: ['Regions'],
     }),
     updateRegion: builder.mutation({
-      query: ({id, data}) => {
-        console.log("Sending region update request:", { id, data });
-        return {
-          url: `/regions/${id}`,
-          method: 'PATCH',
-          body: data,
-        };
-      },
-      transformResponse: (response) => {
-        console.log("Region update response:", response);
-        return response.region || response;
-      },
+      query: ({id, data}) => ({
+        url: `/regions/${id}`,
+        method: 'PATCH',
+        body: data,
+      }),
+      transformResponse: (response) => response.region,
       invalidatesTags: ['Regions'],
     }),
     deleteRegion: builder.mutation({
@@ -48,15 +36,7 @@ export const regionApi = jamlolApi.injectEndpoints({
       }),
       invalidatesTags: ['Regions'],
     }),
-    getRegionsByCity: builder.query({
-      query: (cityId) => ({
-        url: `/regions?city_id=${cityId}`,
-        method: 'GET',
-      }),
-      transformResponse: (response) => response.regions,
-      providesTags: ['Regions'],
-    }),
   }),
 });
 
-export const { useGetAllRegionsQuery, useCreateRegionMutation, useUpdateRegionMutation, useDeleteRegionMutation, useGetRegionsByCityQuery } = regionApi;
+export const { useGetAllRegionsQuery, useCreateRegionMutation, useUpdateRegionMutation, useDeleteRegionMutation } = regionApi;
