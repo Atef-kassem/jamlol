@@ -6,15 +6,12 @@ const {
   updateSupplier,
   deleteSupplier,
   getSuppliersByRegion,
-  getSuppliersWithFilters,
 } = require("../../controllers/Supplier/supplierController");
 const { supplierValidation, updateSupplierValidation } = require("../../validators/SupplierValidations/insertedData");
 const { insertedErrors } = require("../../validators/validationResult");
 
 // Basic CRUD operations
-Router.route("/").post(supplierValidation, insertedErrors, createSupplier).get(getSuppliersWithFilters);
-
-Router.route("/all").get(getAllSuppliers);
+Router.route("/").post(supplierValidation, insertedErrors, createSupplier).get(getAllSuppliers);
 
 Router.route("/:id")
   .get(getSupplierById)

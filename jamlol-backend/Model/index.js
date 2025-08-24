@@ -49,16 +49,15 @@ Region.hasMany(Supplier, { foreignKey: "region_id" });
 Supplier.belongsTo(Region, { foreignKey: "region_id" });
 
 //Region to Naqel (Many-to-Many)
-Region.belongsToMany(Naqel, { through: NaqelRegion, foreignKey: "region_id"});
-Naqel.belongsToMany(Region, { through: NaqelRegion, foreignKey: "naqel_id"});
+Region.belongsToMany(Naqel, { through: NaqelRegion, foreignKey: "region_id" });
+Naqel.belongsToMany(Region, { through: NaqelRegion, foreignKey: "naqel_id" });
 NaqelRegion.belongsTo(Naqel, { foreignKey: "naqel_id" });
 NaqelRegion.belongsTo(Region, { foreignKey: "region_id" });
 Naqel.hasMany(NaqelRegion, { foreignKey: "naqel_id" });
 Region.hasMany(NaqelRegion, { foreignKey: "region_id" });
 
-
-  Naqel.hasMany(Driver, { foreignKey: "naqel_id" });
-  Driver.belongsTo(Naqel, { foreignKey: "naqel_id" });
+Naqel.hasMany(Driver, { foreignKey: "naqel_id" });
+Driver.belongsTo(Naqel, { foreignKey: "naqel_id" });
 
 Naqel.hasMany(Car, { foreignKey: "naqel_id" });
 Car.belongsTo(Naqel, { foreignKey: "naqel_id" });

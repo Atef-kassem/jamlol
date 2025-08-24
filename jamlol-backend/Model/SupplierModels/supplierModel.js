@@ -18,11 +18,13 @@ const Supplier = sequelize.define(
       type: DataTypes.ENUM("person", "company"),
       allowNull: false,
     },
-    card_number: {
-      type: DataTypes.INTEGER,
+    identification_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    sgl_number: {
-      type: DataTypes.INTEGER,
+    identification_type: {
+      type: DataTypes.ENUM("card", "sgl"),
+      allowNull: false,
     },
     jwal: {
       type: DataTypes.STRING,
@@ -31,6 +33,7 @@ const Supplier = sequelize.define(
     },
     address: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
     region_id: {
       type: DataTypes.INTEGER,
@@ -41,12 +44,11 @@ const Supplier = sequelize.define(
       },
     },
     active: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.ENUM("active", "inactive"),
       allowNull: false,
-      defaultValue: true,
+      defaultValue: "inactive",
     },
   },
-
   {
     timestamps: true,
     tableName: "tbl_supplier",
