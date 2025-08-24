@@ -29,9 +29,9 @@ const Client = sequelize.define(
       },
     },
     active: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.ENUM("active", "inactive"),
       allowNull: false,
-      defaultValue: true,
+      defaultValue: "inactive",
     },
   },
 

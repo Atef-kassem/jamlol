@@ -20,9 +20,23 @@ exports.createClient = catchAsync(async (req, res, next) => {
   });
 });
 
-// Get all clients
+// Get clients with pagination and filtering
 exports.getAllClients = catchAsync(async (req, res, next) => {
-  const clients = await Client.findAll({
+  const { page = 1, limit = 10, active, region_id } = req.query;
+
+  const offset = (page - 1) * limit;
+  const whereClause = {};
+
+  if (active !== undefined) {
+    whereClause.active = active === "true";
+  }
+
+  if (region_id) {
+    whereClause.region_id = region_id;
+  }
+
+  const { count, rows: clients } = await Client.findAndCountAll({
+    where: whereClause,
     include: [
       {
         model: Region,
@@ -30,14 +44,21 @@ exports.getAllClients = catchAsync(async (req, res, next) => {
         attributes: ["id", "name"],
       },
     ],
+    limit: parseInt(limit),
+    offset: parseInt(offset),
+    order: [["createdAt", "DESC"]],
   });
 
   res.status(200).json({
     status: "success",
-    results: clients.length,
-    data: {
-      clients,
+    results: count,
+    pagination: {
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(count / limit),
+      totalItems: count,
+      itemsPerPage: parseInt(limit),
     },
+    clients,
   });
 });
 
@@ -63,40 +84,6 @@ exports.getClientById = catchAsync(async (req, res, next) => {
     status: "success",
     data: {
       client,
-    },
-  });
-});
-
-// Get clients by region ID
-exports.getClientsByRegion = catchAsync(async (req, res, next) => {
-  const { regionId } = req.params;
-
-  // First check if region exists
-  const region = await Region.findByPk(regionId);
-  if (!region) {
-    return next(new AppError("Region not found", 404));
-  }
-
-  const clients = await Client.findAll({
-    where: { region_id: regionId },
-    include: [
-      {
-        model: Region,
-        as: "Region",
-        attributes: ["id", "name"],
-      },
-    ],
-  });
-
-  res.status(200).json({
-    status: "success",
-    results: clients.length,
-    data: {
-      region: {
-        id: region.id,
-        name: region.name,
-      },
-      clients,
     },
   });
 });
@@ -141,23 +128,18 @@ exports.deleteClient = catchAsync(async (req, res, next) => {
   });
 });
 
-// Get clients with pagination and filtering
-exports.getClientsWithFilters = catchAsync(async (req, res, next) => {
-  const { page = 1, limit = 10, active, region_id } = req.query;
+// Get clients by region ID
+exports.getClientsByRegion = catchAsync(async (req, res, next) => {
+  const { regionId } = req.params;
 
-  const offset = (page - 1) * limit;
-  const whereClause = {};
-
-  if (active !== undefined) {
-    whereClause.active = active === "true";
+  // First check if region exists
+  const region = await Region.findByPk(regionId);
+  if (!region) {
+    return next(new AppError("Region not found", 404));
   }
 
-  if (region_id) {
-    whereClause.region_id = region_id;
-  }
-
-  const { count, rows: clients } = await Client.findAndCountAll({
-    where: whereClause,
+  const clients = await Client.findAll({
+    where: { region_id: regionId },
     include: [
       {
         model: Region,
@@ -165,21 +147,16 @@ exports.getClientsWithFilters = catchAsync(async (req, res, next) => {
         attributes: ["id", "name"],
       },
     ],
-    limit: parseInt(limit),
-    offset: parseInt(offset),
-    order: [["createdAt", "DESC"]],
   });
 
   res.status(200).json({
     status: "success",
-    results: count,
-    pagination: {
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(count / limit),
-      totalItems: count,
-      itemsPerPage: parseInt(limit),
-    },
+    results: clients.length,
     data: {
+      region: {
+        id: region.id,
+        name: region.name,
+      },
       clients,
     },
   });

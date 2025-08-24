@@ -6,15 +6,12 @@ const {
   updateClient,
   deleteClient,
   getClientsByRegion,
-  getClientsWithFilters,
 } = require("../../controllers/Client/clientController");
 const { clientValidation, updateClientValidation } = require("../../validators/ClientValidations/insertedData");
 const { insertedErrors } = require("../../validators/validationResult");
 
 // Basic CRUD operations
-Router.route("/").post(clientValidation, insertedErrors, createClient).get(getClientsWithFilters);
-
-Router.route("/all").get(getAllClients);
+Router.route("/").post(clientValidation, insertedErrors, createClient).get(getAllClients);
 
 Router.route("/:id")
   .get(getClientById)
