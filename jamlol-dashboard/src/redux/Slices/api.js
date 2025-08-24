@@ -1,4 +1,3 @@
-
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const jamlolApi = createApi({
@@ -13,6 +12,20 @@ export const jamlolApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Users", "App","Roles", "Permissions", "Management", "Countries", "Cities", "Regions", "Models", "Cars", "Drivers", "Naqleen"],
+  tagTypes: [
+    "Users",
+    "App",
+    "Roles",
+    "Permissions",
+    "Management",
+    "Countries",
+    "Cities",
+    "Regions",
+    "Models",
+    "Cars",
+    "Drivers",
+    "Naqleen",
+    "Suppliers",
+  ],
   endpoints: () => ({}),
 });
